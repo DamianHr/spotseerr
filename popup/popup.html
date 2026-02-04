@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overseerr YouTube Extension</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <img src="../icons/icon32.png" alt="Overseerr" class="header-icon">
+        <h1 class="header-title">Overseerr</h1>
+      </div>
+      <button id="settingsBtn" class="icon-btn" title="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Configuration Warning -->
+    <div id="configWarning" class="config-warning hidden">
+      <div class="warning-content">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <span>Please configure Overseerr settings</span>
+      </div>
+      <button id="openSettingsBtn" class="btn btn-sm">Open Settings</button>
+    </div>
+
+    <!-- Not on YouTube State -->
+    <div id="notYoutubeState" class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+        <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+      </svg>
+      <p>Navigate to a YouTube video to get started</p>
+    </div>
+
+    <!-- Current Video Section -->
+    <div id="videoSection" class="video-section hidden">
+      <div class="video-info">
+        <h2 id="videoTitle" class="video-title"></h2>
+        <div class="video-meta">
+          <span id="mediaType" class="badge"></span>
+          <span id="searchStatus" class="search-status"></span>
+        </div>
+      </div>
+      
+      <div class="search-input-group">
+        <label for="searchTitleInput" class="search-label">Search title:</label>
+        <div class="input-with-icon">
+          <input type="text" id="searchTitleInput" class="search-input" placeholder="Enter title to search...">
+          <button id="refreshVideoBtn" class="input-icon-btn" title="Refresh video detection">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 4v6h-6"></path>
+              <path d="M1 20v-6h6"></path>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+        <p class="search-hint">Auto-search enabled. Edit the title if needed.</p>
+      </div>
+      
+      <button id="searchBtn" class="btn btn-primary search-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        Search on Overseerr
+      </button>
+    </div>
+
+    <!-- Search Results -->
+    <div id="resultsSection" class="results-section hidden">
+      <h3 class="section-title">Search Results</h3>
+      <div id="resultsList" class="results-list">
+        <!-- Results will be populated here -->
+      </div>
+    </div>
+
+    <!-- No Results State -->
+    <div id="noResultsState" class="empty-state hidden">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
+      <p>No results found on Overseerr</p>
+      <p class="sub-text">Try editing the search title or searching manually</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="error-state hidden">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <p id="errorMessage">Something went wrong</p>
+      <button id="retryBtn" class="btn btn-secondary">Retry</button>
+    </div>
+
+    <!-- Debug Log Section (moved to bottom) -->
+    <div id="logSection" class="log-section">
+      <div class="log-header">
+        <span class="log-title">Debug Log</span>
+        <button id="clearLogsBtn" class="log-clear-btn">Clear</button>
+      </div>
+      <div id="logContainer" class="log-container">
+        <!-- Logs will appear here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Item Template -->
+  <template id="resultTemplate">
+    <div class="result-item" data-id="" data-type="">
+      <img class="result-poster" src="" alt="">
+      <div class="result-info">
+        <h4 class="result-title"></h4>
+        <div class="result-meta">
+          <span class="result-year"></span>
+          <span class="result-status"></span>
+        </div>
+      </div>
+      <button class="btn btn-request">
+        <span class="btn-text">Request</span>
+        <span class="btn-loader hidden"></span>
+      </button>
+    </div>
+  </template>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html>

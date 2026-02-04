@@ -1,0 +1,8 @@
+node_modules/
+*.md
+convert-icons.js
+convert-icons.sh
+icons/
+*.svg
+*.png
+package-lock.json
