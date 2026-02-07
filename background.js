@@ -233,6 +233,7 @@ function cleanTitle(title) {
     .replace(channelPattern, "")
     .replace(resolutionPattern, "")
     .replace(/[()[\]{}]/g, "")
+    .replace(/[|_]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -296,6 +297,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         case "searchMedia": {
           const searchResults = await searchMedia(request.query);
           return { success: true, data: searchResults };
+        }
+        case "getMediaDetails": {
+          const details = await getMediaDetails(request.mediaType, request.mediaId);
+          return { success: true, data: details };
         }
         case "createRequest": {
           const requestResult = await createRequest(request.requestData);

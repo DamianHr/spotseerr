@@ -323,7 +323,7 @@ function showVideoInfo(videoInfo) {
   if (elements.videoSection) elements.videoSection.classList.remove("hidden");
 }
 
-function showResults(results) {
+async function showResults(results) {
   // Sort results by year (newest to oldest)
   const sortedResults = results.sort((a, b) => {
     const yearA = a.releaseDate || a.firstAirDate
@@ -348,9 +348,34 @@ function showResults(results) {
     return;
   }
 
-  addLog(`Found ${sortedResults.length} results`, "success");
+  addLog(`Found ${sortedResults.length} results, checking status...`, "info");
 
-  sortedResults.forEach((result) => {
+  // Fetch detailed information for each result to get correct request status
+  const resultsWithDetails = await Promise.all(
+    sortedResults.map(async (result) => {
+      try {
+        const response = await chrome.runtime.sendMessage({
+          action: "getMediaDetails",
+          mediaType: result.mediaType,
+          mediaId: result.id,
+        });
+
+        if (response && response.success && response.data) {
+          // Merge the detailed info with the search result
+          return {
+            ...result,
+            mediaInfo: response.data.mediaInfo || result.mediaInfo,
+          };
+        }
+        return result;
+      } catch (error) {
+        console.warn(`Failed to get details for ${result.title || result.name}:`, error);
+        return result;
+      }
+    }),
+  );
+
+  resultsWithDetails.forEach((result) => {
     const resultElement = createResultElement(result);
     if (resultElement && elements.resultsList) {
       elements.resultsList.appendChild(resultElement);
@@ -616,7 +641,7 @@ async function searchOverseerr(query) {
       const mediaResults = results.filter(
         (r) => r.mediaType === "movie" || r.mediaType === "tv",
       );
-      showResults(mediaResults.slice(0, 5));
+      await showResults(mediaResults.slice(0, 5));
     } else {
       const errorMsg = response?.error || "Search failed - no response from background script";
       addLog(`Search error: ${errorMsg}`, "error");
