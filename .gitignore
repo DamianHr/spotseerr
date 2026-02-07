@@ -2,7 +2,11 @@
 .DS_Store
 Thumbs.db
 
-# Dependencies
+# Deno
+.deno/
+deno.lock
+
+# Dependencies (legacy Node.js - can be removed after migration)
 node_modules/
 package-lock.json
 yarn.lock
@@ -32,6 +36,7 @@ coverage/
 .nyc_output/
 
 # Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

@@ -94,13 +94,12 @@ function addLog(message, type = "info") {
   const logEntry = document.createElement("div");
   logEntry.className = "log-entry";
 
-  const typeClass =
-    {
-      info: "log-info",
-      success: "log-success",
-      error: "log-error",
-      warn: "log-warn",
-    }[type] || "log-info";
+  const typeClass = {
+    info: "log-info",
+    success: "log-success",
+    error: "log-error",
+    warn: "log-warn",
+  }[type] || "log-info";
 
   logEntry.innerHTML = `
     <span class="log-time">[${timestamp}]</span>
@@ -179,9 +178,7 @@ async function initialize() {
 }
 
 async function handleManualSearch() {
-  const searchTitle = elements.searchTitleInput
-    ? elements.searchTitleInput.value.trim()
-    : "";
+  const searchTitle = elements.searchTitleInput ? elements.searchTitleInput.value.trim() : "";
 
   if (!searchTitle) {
     addLog("Please enter a title to search", "error");
@@ -251,10 +248,12 @@ async function refreshVideoDetection() {
 
   try {
     // Clear previous results
-    if (elements.resultsSection)
+    if (elements.resultsSection) {
       elements.resultsSection.classList.add("hidden");
-    if (elements.noResultsState)
+    }
+    if (elements.noResultsState) {
       elements.noResultsState.classList.add("hidden");
+    }
     if (elements.resultsList) elements.resultsList.innerHTML = "";
     if (elements.searchStatus) {
       elements.searchStatus.textContent = "";
@@ -276,8 +275,7 @@ async function refreshVideoDetection() {
       elements.videoTitle.textContent = truncateText(videoInfo.title, 80);
     }
     if (elements.mediaType) {
-      elements.mediaType.textContent =
-        videoInfo.mediaType === "tv" ? "TV Show" : "Movie";
+      elements.mediaType.textContent = videoInfo.mediaType === "tv" ? "TV Show" : "Movie";
     }
     if (elements.searchTitleInput) {
       elements.searchTitleInput.value = videoInfo.cleanedTitle;
@@ -307,32 +305,33 @@ function showConfigWarning() {
 
 function showNotYoutube() {
   hideAllStates();
-  if (elements.notYoutubeState)
+  if (elements.notYoutubeState) {
     elements.notYoutubeState.classList.remove("hidden");
+  }
 }
 
 function showVideoInfo(videoInfo) {
-  if (elements.videoTitle)
+  if (elements.videoTitle) {
     elements.videoTitle.textContent = truncateText(videoInfo.title, 80);
-  if (elements.mediaType)
-    elements.mediaType.textContent =
-      videoInfo.mediaType === "tv" ? "TV Show" : "Movie";
-  if (elements.searchTitleInput)
+  }
+  if (elements.mediaType) {
+    elements.mediaType.textContent = videoInfo.mediaType === "tv" ? "TV Show" : "Movie";
+  }
+  if (elements.searchTitleInput) {
     elements.searchTitleInput.value = videoInfo.cleanedTitle;
+  }
   if (elements.videoSection) elements.videoSection.classList.remove("hidden");
 }
 
 function showResults(results) {
   // Sort results by year (newest to oldest)
   const sortedResults = results.sort((a, b) => {
-    const yearA =
-      a.releaseDate || a.firstAirDate
-        ? new Date(a.releaseDate || a.firstAirDate).getFullYear()
-        : 0;
-    const yearB =
-      b.releaseDate || b.firstAirDate
-        ? new Date(b.releaseDate || b.firstAirDate).getFullYear()
-        : 0;
+    const yearA = a.releaseDate || a.firstAirDate
+      ? new Date(a.releaseDate || a.firstAirDate).getFullYear()
+      : 0;
+    const yearB = b.releaseDate || b.firstAirDate
+      ? new Date(b.releaseDate || b.firstAirDate).getFullYear()
+      : 0;
     return yearB - yearA; // Newest first
   });
 
@@ -340,10 +339,12 @@ function showResults(results) {
 
   if (sortedResults.length === 0) {
     addLog("No results found on Overseerr", "warn");
-    if (elements.resultsSection)
+    if (elements.resultsSection) {
       elements.resultsSection.classList.add("hidden");
-    if (elements.noResultsState)
+    }
+    if (elements.noResultsState) {
       elements.noResultsState.classList.remove("hidden");
+    }
     return;
   }
 
@@ -356,8 +357,9 @@ function showResults(results) {
     }
   });
 
-  if (elements.resultsSection)
+  if (elements.resultsSection) {
     elements.resultsSection.classList.remove("hidden");
+  }
   if (elements.noResultsState) elements.noResultsState.classList.add("hidden");
 }
 
@@ -395,10 +397,9 @@ function createResultElement(result) {
 
   if (title) title.textContent = result.title || result.name;
   if (year) {
-    year.textContent =
-      result.releaseDate || result.firstAirDate
-        ? new Date(result.releaseDate || result.firstAirDate).getFullYear()
-        : "N/A";
+    year.textContent = result.releaseDate || result.firstAirDate
+      ? new Date(result.releaseDate || result.firstAirDate).getFullYear()
+      : "N/A";
   }
 
   if (status && requestBtn) {
@@ -406,9 +407,7 @@ function createResultElement(result) {
   }
 
   if (requestBtn) {
-    requestBtn.addEventListener("click", () =>
-      handleRequest(result, requestBtn),
-    );
+    requestBtn.addEventListener("click", () => handleRequest(result, requestBtn));
   }
 
   return item;
@@ -619,8 +618,7 @@ async function searchOverseerr(query) {
       );
       showResults(mediaResults.slice(0, 5));
     } else {
-      const errorMsg =
-        response?.error || "Search failed - no response from background script";
+      const errorMsg = response?.error || "Search failed - no response from background script";
       addLog(`Search error: ${errorMsg}`, "error");
       throw new Error(errorMsg);
     }
@@ -638,8 +636,9 @@ function showError(message) {
 
 function hideAllStates() {
   if (elements.configWarning) elements.configWarning.classList.add("hidden");
-  if (elements.notYoutubeState)
+  if (elements.notYoutubeState) {
     elements.notYoutubeState.classList.add("hidden");
+  }
   if (elements.videoSection) elements.videoSection.classList.add("hidden");
   if (elements.resultsSection) elements.resultsSection.classList.add("hidden");
   if (elements.noResultsState) elements.noResultsState.classList.add("hidden");

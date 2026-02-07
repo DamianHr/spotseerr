@@ -22,18 +22,18 @@ async function apiRequest(endpoint, options = {}, timeoutMs = 10000) {
   }
 
   const fullUrl = `${url}/api/v1${endpoint}`;
-  
+
   // Create AbortController for timeout
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  
+
   const defaultOptions = {
     headers: {
       "X-Api-Key": apiKey,
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      "Accept": "application/json",
     },
-    signal: controller.signal
+    signal: controller.signal,
   };
 
   const fetchOptions = {
@@ -41,15 +41,15 @@ async function apiRequest(endpoint, options = {}, timeoutMs = 10000) {
     ...options,
     headers: {
       ...defaultOptions.headers,
-      ...options.headers
+      ...options.headers,
     },
-    signal: controller.signal
+    signal: controller.signal,
   };
 
   try {
     const response = await fetch(fullUrl, fetchOptions);
     clearTimeout(timeoutId);
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
@@ -63,15 +63,19 @@ async function apiRequest(endpoint, options = {}, timeoutMs = 10000) {
     return await response.json();
   } catch (error) {
     clearTimeout(timeoutId);
-    
+
     if (error.name === "AbortError") {
-      throw new Error(`Connection timed out after ${timeoutMs / 1000} seconds. Please check your URL and network connection.`);
+      throw new Error(
+        `Connection timed out after ${
+          timeoutMs / 1000
+        } seconds. Please check your URL and network connection.`,
+      );
     }
-    
+
     if (error.message.includes("Failed to fetch")) {
       throw new Error("Cannot connect to Overseerr. Please check your URL and network connection.");
     }
-    
+
     throw error;
   }
 }
@@ -136,7 +140,7 @@ export async function getTvDetails(tvId) {
 export async function createRequest(requestData) {
   return await apiRequest("/request", {
     method: "POST",
-    body: JSON.stringify(requestData)
+    body: JSON.stringify(requestData),
   });
 }
 
@@ -148,21 +152,21 @@ export async function createRequest(requestData) {
 export async function testConnection() {
   try {
     console.log("Testing connection to Overseerr...");
-    
+
     // Use 5 second timeout for connection test (quicker feedback)
     const status = await apiRequest("/status", {}, 5000);
-    
+
     console.log("Connection successful:", status);
     return {
       success: true,
       version: status.version,
-      message: `Connected to Overseerr v${status.version}`
+      message: `Connected to Overseerr v${status.version}`,
     };
   } catch (error) {
     console.error("Connection test failed:", error);
     return {
       success: false,
-      message: error.message
+      message: error.message,
     };
   }
 }
@@ -182,7 +186,7 @@ export async function getRequestStatus(mediaId, mediaType) {
         mediaType: "movie",
         title: details.title,
         status: details.mediaInfo?.status || 1, // 1 = UNKNOWN
-        requests: details.mediaInfo?.requests || []
+        requests: details.mediaInfo?.requests || [],
       };
     } else {
       const details = await getTvDetails(mediaId);
@@ -191,7 +195,7 @@ export async function getRequestStatus(mediaId, mediaType) {
         mediaType: "tv",
         title: details.name,
         status: details.mediaInfo?.status || 1,
-        requests: details.mediaInfo?.requests || []
+        requests: details.mediaInfo?.requests || [],
       };
     }
   } catch (error) {
@@ -201,7 +205,7 @@ export async function getRequestStatus(mediaId, mediaType) {
       mediaType,
       status: 1,
       requests: [],
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -214,15 +218,15 @@ export async function getRequestStatus(mediaId, mediaType) {
  */
 export async function checkAvailability(mediaId, mediaType) {
   const status = await getRequestStatus(mediaId, mediaType);
-  
+
   // Status codes: 1 = UNKNOWN, 2 = PENDING, 3 = PROCESSING, 4 = PARTIALLY_AVAILABLE, 5 = AVAILABLE
   const isAvailable = status.status >= 4;
   const isRequested = status.requests && status.requests.length > 0;
-  
+
   return {
     isAvailable,
     isRequested,
     status: status.status,
-    requests: status.requests
+    requests: status.requests,
   };
 }

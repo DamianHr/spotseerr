@@ -8,7 +8,7 @@ let currentVideoInfo = {
   cleanedTitle: "",
   mediaType: "movie",
   url: "",
-  videoId: ""
+  videoId: "",
 };
 
 // Extract video information from YouTube page
@@ -16,33 +16,33 @@ function extractVideoInfo() {
   try {
     // Get video title
     const titleElement = document.querySelector("h1.ytd-watch-metadata") ||
-                        document.querySelector("h1.title") ||
-                        document.querySelector("h1");
+      document.querySelector("h1.title") ||
+      document.querySelector("h1");
 
     const title = titleElement ? titleElement.textContent.trim() : "";
 
     // Get video description
     const descriptionElement = document.querySelector("#description-inline-expander") ||
-                                document.querySelector("#description") ||
-                                document.querySelector(".ytd-video-secondary-info-renderer");
+      document.querySelector("#description") ||
+      document.querySelector(".ytd-video-secondary-info-renderer");
 
     const description = descriptionElement ? descriptionElement.textContent.trim() : "";
 
     // Get video ID from URL
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(globalThis.location.search);
     const videoId = urlParams.get("v") || "";
 
     // Get channel name
     const channelElement = document.querySelector("ytd-channel-name a") ||
-                          document.querySelector(".ytd-channel-name a");
+      document.querySelector(".ytd-channel-name a");
     const channelName = channelElement ? channelElement.textContent.trim() : "";
 
     return {
       title,
       description,
-      url: window.location.href,
+      url: globalThis.location.href,
       videoId,
-      channelName
+      channelName,
     };
   } catch (error) {
     console.error("Error extracting video info:", error);
@@ -60,8 +60,8 @@ async function processVideoInfo() {
       description: "",
       cleanedTitle: "",
       mediaType: "movie",
-      url: window.location.href,
-      videoId: ""
+      url: globalThis.location.href,
+      videoId: "",
     };
     return;
   }
@@ -71,20 +71,20 @@ async function processVideoInfo() {
     const response = await chrome.runtime.sendMessage({
       action: "cleanTitle",
       title: videoInfo.title,
-      description: videoInfo.description
+      description: videoInfo.description,
     });
 
     if (response.success) {
       currentVideoInfo = {
         ...videoInfo,
         cleanedTitle: response.data.cleaned,
-        mediaType: response.data.mediaType
+        mediaType: response.data.mediaType,
       };
     } else {
       currentVideoInfo = {
         ...videoInfo,
         cleanedTitle: videoInfo.title,
-        mediaType: "movie"
+        mediaType: "movie",
       };
     }
 
@@ -94,19 +94,19 @@ async function processVideoInfo() {
     currentVideoInfo = {
       ...videoInfo,
       cleanedTitle: videoInfo.title,
-      mediaType: "movie"
+      mediaType: "movie",
     };
   }
 }
 
 // Listen for messages from popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === "getCurrentVideo") {
     // Re-extract to ensure we have latest data
     processVideoInfo().then(() => {
       sendResponse({
         success: true,
-        data: currentVideoInfo
+        data: currentVideoInfo,
       });
     });
     return true; // Async response

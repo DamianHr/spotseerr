@@ -11,7 +11,7 @@ const STORAGE_KEYS = {
   API_KEY: "apiKey",
   DEFAULT_PROFILE: "defaultProfile",
   NOTIFICATIONS_ENABLED: "notificationsEnabled",
-  DEBUG_ENABLED: "debugEnabled"
+  DEBUG_ENABLED: "debugEnabled",
 };
 
 const DEFAULT_SETTINGS = {
@@ -19,7 +19,7 @@ const DEFAULT_SETTINGS = {
   [STORAGE_KEYS.API_KEY]: "",
   [STORAGE_KEYS.DEFAULT_PROFILE]: "1",
   [STORAGE_KEYS.NOTIFICATIONS_ENABLED]: true,
-  [STORAGE_KEYS.DEBUG_ENABLED]: false
+  [STORAGE_KEYS.DEBUG_ENABLED]: false,
 };
 
 async function getStorage(key) {
@@ -106,7 +106,9 @@ async function apiRequest(endpoint, options = {}, timeoutMs = 10000) {
 
     if (error.name === "AbortError") {
       throw new Error(
-        `Connection timed out after ${timeoutMs / 1000} seconds. Please check your URL and network connection.`,
+        `Connection timed out after ${
+          timeoutMs / 1000
+        } seconds. Please check your URL and network connection.`,
       );
     }
 
@@ -148,7 +150,7 @@ async function createRequest(requestData) {
     // First, get media details to ensure it's added to Overseerr's database
     try {
       await getMediaDetails(requestData.mediaType, requestData.mediaId);
-    } catch (mediaError) {
+    } catch (_mediaError) {
       // Continue anyway - maybe it's already in the DB
     }
 
@@ -158,10 +160,10 @@ async function createRequest(requestData) {
       body: JSON.stringify(requestData),
     });
     console.log("[Background] Request created successfully");
-    return {success: true, data: response};
+    return { success: true, data: response };
   } catch (error) {
     console.error("[Background] Request creation failed:", error.message);
-    return {success: false, error: error.message};
+    return { success: false, error: error.message };
   }
 }
 
@@ -284,42 +286,42 @@ function showNotification(title, message, type = "info") {
 }
 
 // Message handler
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   const handleAsync = async () => {
     try {
       switch (request.action) {
-      case "getVideoInfo": {
-        return {success: true, data: request.data};
-      }
-      case "searchMedia": {
-        const searchResults = await searchMedia(request.query);
-        return {success: true, data: searchResults};
-      }
-      case "createRequest": {
-        const requestResult = await createRequest(request.requestData);
-        return {success: true, data: requestResult};
-      }
-      case "testConnection": {
-        return testConnection();
-      }
-      case "checkAvailability": {
-        return {success: false, error: "Not implemented"};
-      }
-      case "showNotification": {
-        showNotification(request.title, request.message, request.type);
-        return {success: true};
-      }
-      case "cleanTitle": {
-        const cleaned = cleanTitle(request.title);
-        const mediaType = detectMediaType(request.title, request.description);
-        return {success: true, data: {cleaned, mediaType}};
-      }
-      default:
-        return {success: false, error: "Unknown action: " + request.action};
+        case "getVideoInfo": {
+          return { success: true, data: request.data };
+        }
+        case "searchMedia": {
+          const searchResults = await searchMedia(request.query);
+          return { success: true, data: searchResults };
+        }
+        case "createRequest": {
+          const requestResult = await createRequest(request.requestData);
+          return { success: true, data: requestResult };
+        }
+        case "testConnection": {
+          return testConnection();
+        }
+        case "checkAvailability": {
+          return { success: false, error: "Not implemented" };
+        }
+        case "showNotification": {
+          showNotification(request.title, request.message, request.type);
+          return { success: true };
+        }
+        case "cleanTitle": {
+          const cleaned = cleanTitle(request.title);
+          const mediaType = detectMediaType(request.title, request.description);
+          return { success: true, data: { cleaned, mediaType } };
+        }
+        default:
+          return { success: false, error: "Unknown action: " + request.action };
       }
     } catch (error) {
       console.error("Background script error:", error);
-      return {success: false, error: error.message};
+      return { success: false, error: error.message };
     }
   };
 
@@ -329,7 +331,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     })
     .catch((error) => {
       console.error("[Background] Unhandled error in message handler:", error.message);
-      sendResponse({success: false, error: error.message});
+      sendResponse({ success: false, error: error.message });
     });
 
   return true;

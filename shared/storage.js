@@ -5,7 +5,7 @@ const STORAGE_KEYS = {
   API_KEY: "apiKey",
   DEFAULT_PROFILE: "defaultProfile",
   NOTIFICATIONS_ENABLED: "notificationsEnabled",
-  DEBUG_ENABLED: "debugEnabled"
+  DEBUG_ENABLED: "debugEnabled",
 };
 
 const DEFAULT_SETTINGS = {
@@ -13,7 +13,7 @@ const DEFAULT_SETTINGS = {
   [STORAGE_KEYS.API_KEY]: "",
   [STORAGE_KEYS.DEFAULT_PROFILE]: "1",
   [STORAGE_KEYS.NOTIFICATIONS_ENABLED]: true,
-  [STORAGE_KEYS.DEBUG_ENABLED]: false
+  [STORAGE_KEYS.DEBUG_ENABLED]: false,
 };
 
 /**

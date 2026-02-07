@@ -28,5 +28,3 @@ export function isValidUrl(url) {
     return false;
   }
 }
-
-
