@@ -31,7 +31,7 @@ async function checkTranslations(): Promise<void> {
         );
       }
     } else {
-      console.log(`✅ Not other Locale to synced.`);
+      console.log(`✅ No other Locale to sync.`);
     }
   }
 
