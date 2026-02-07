@@ -29,8 +29,7 @@ export async function getStorage(key) {
       return DEFAULT_SETTINGS[key];
     }
     return result[key] !== undefined ? result[key] : DEFAULT_SETTINGS[key];
-  } catch (error) {
-    console.error("Storage get error:", error);
+  } catch {
     return DEFAULT_SETTINGS[key];
   }
 }
@@ -47,8 +46,7 @@ export async function getAllSettings() {
       return { ...DEFAULT_SETTINGS };
     }
     return { ...DEFAULT_SETTINGS, ...result };
-  } catch (error) {
-    console.error("Storage get all error:", error);
+  } catch {
     return { ...DEFAULT_SETTINGS };
   }
 }
@@ -62,7 +60,6 @@ export async function saveSettings(settings) {
   try {
     await chrome.storage.sync.set(settings);
   } catch (error) {
-    console.error("Storage save error:", error);
     throw error;
   }
 }

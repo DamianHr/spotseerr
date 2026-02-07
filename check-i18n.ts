@@ -1,3 +1,5 @@
+// deno-lint-ignore-file no-console
+//
 const BASE_LOCALE = "en";
 const LOCALES_DIR = "./_locales";
 

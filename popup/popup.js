@@ -28,26 +28,22 @@ const elements = {
   resultTemplate: document.getElementById("resultTemplate"),
 };
 
-// Verify all elements exist
 function verifyElements() {
   const missing = [];
   for (const [key, value] of Object.entries(elements)) {
     if (!value) {
       missing.push(key);
-      console.error(`Missing element: ${key}`);
     }
   }
   if (missing.length > 0) {
-    console.error("Missing DOM elements:", missing);
+    return false;
   }
   return missing.length === 0;
 }
 
 // Initialize popup
 document.addEventListener("DOMContentLoaded", async () => {
-  if (!verifyElements()) {
-    console.error("Some DOM elements are missing. Please check the HTML structure.");
-  }
+  verifyElements();
   addLog(chrome.i18n.getMessage("logPopupOpened"), "info");
   setupEventListeners();
   await initialize();
@@ -106,8 +102,6 @@ function addLog(message, type = "info") {
 
   elements.logContainer.appendChild(logEntry);
   elements.logContainer.scrollTop = elements.logContainer.scrollHeight;
-
-  console.log(`[${type.toUpperCase()}] ${message}`);
 }
 
 function clearLogs() {
@@ -170,7 +164,6 @@ async function initialize() {
     await handleManualSearch();
   } catch (error) {
     addLog(chrome.i18n.getMessage("logInitializationError", [error.message]), "error");
-    console.error("Initialization error:", error);
     showError(error.message);
   }
 }
@@ -282,7 +275,6 @@ async function refreshVideoDetection() {
     }
   } catch (error) {
     addLog(chrome.i18n.getMessage("logErrorRefreshing", [error.message]), "error");
-    console.error("Error refreshing video detection:", error);
   } finally {
     // Restore button
     if (elements.refreshVideoBtn) {
@@ -364,8 +356,7 @@ async function showResults(results) {
           };
         }
         return result;
-      } catch (error) {
-        console.warn(`Failed to get details for ${result.title || result.name}:`, error);
+      } catch (_error) {
         return result;
       }
     }),
@@ -391,7 +382,6 @@ async function showResults(results) {
 
 function createResultElement(result) {
   if (!elements.resultTemplate) {
-    console.error("Result template not found");
     return null;
   }
 
@@ -404,7 +394,6 @@ function createResultElement(result) {
   const requestBtn = clone.querySelector(".btn-request");
 
   if (!item) {
-    console.error("Could not find result-item in template");
     return null;
   }
 
@@ -439,7 +428,6 @@ function createResultElement(result) {
 
 function updateResultStatus(result, statusElement, buttonElement) {
   if (!statusElement || !buttonElement) {
-    console.error("updateResultStatus: Missing status or button element");
     return;
   }
 

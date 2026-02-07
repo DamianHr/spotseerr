@@ -3,10 +3,6 @@
 
 import { getStorage, STORAGE_KEYS } from "./shared/storage.js";
 
-console.log("[Background] ========================================");
-console.log("[Background] Service Worker Loaded - Version 2025.02.04");
-console.log("[Background] ========================================");
-
 async function getOverseerrUrl() {
   let url = await getStorage(STORAGE_KEYS.OVERSEERR_URL);
   url = url.trim();
@@ -62,8 +58,6 @@ async function apiRequest(endpoint, options = {}, timeoutMs = 10000) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      const errorText = await response.text().catch(() => "");
-      console.error("[Background] Error response body:", errorText);
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
     }
@@ -109,7 +103,6 @@ async function getMediaDetails(mediaType, mediaId) {
 async function createRequest(requestData) {
   // Validate required fields
   if (!requestData.mediaType || !requestData.mediaId) {
-    console.error("[Background] Missing required fields:", requestData);
     return {
       success: false,
       error: "Missing required fields: mediaType and mediaId are required",
@@ -120,7 +113,7 @@ async function createRequest(requestData) {
     // First, get media details to ensure it's added to Overseerr's database
     try {
       await getMediaDetails(requestData.mediaType, requestData.mediaId);
-    } catch (_mediaError) {
+    } catch {
       // Continue anyway - maybe it's already in the DB
     }
 
@@ -129,29 +122,9 @@ async function createRequest(requestData) {
       method: "POST",
       body: JSON.stringify(requestData),
     });
-    console.log("[Background] Request created successfully");
     return { success: true, data: response };
   } catch (error) {
-    console.error("[Background] Request creation failed:", error.message);
     return { success: false, error: error.message };
-  }
-}
-
-async function testConnection() {
-  try {
-    const status = await apiRequest("/status", {}, 5000);
-    console.log("[Background] Connection successful:", status.version);
-    return {
-      success: true,
-      version: status.version,
-      message: `Connected to Overseerr v${status.version}`,
-    };
-  } catch (error) {
-    console.error("[Background] Connection test failed:", error.message);
-    return {
-      success: false,
-      message: error.message,
-    };
   }
 }
 
@@ -276,9 +249,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
           const requestResult = await createRequest(request.requestData);
           return { success: true, data: requestResult };
         }
-        case "testConnection": {
-          return testConnection();
-        }
         case "checkAvailability": {
           return { success: false, error: "Not implemented" };
         }
@@ -295,7 +265,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
           return { success: false, error: "Unknown action: " + request.action };
       }
     } catch (error) {
-      console.error("Background script error:", error);
       return { success: false, error: error.message };
     }
   };
@@ -305,7 +274,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       sendResponse(response);
     })
     .catch((error) => {
-      console.error("[Background] Unhandled error in message handler:", error.message);
       sendResponse({ success: false, error: error.message });
     });
 

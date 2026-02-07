@@ -1,5 +1,4 @@
 // Content script for YouTube page interaction
-console.log("Content script initializing...");
 
 // Store current video info
 let currentVideoInfo = {
@@ -44,8 +43,7 @@ function extractVideoInfo() {
       videoId,
       channelName,
     };
-  } catch (error) {
-    console.error("Error extracting video info:", error);
+  } catch {
     return null;
   }
 }
@@ -87,10 +85,7 @@ async function processVideoInfo() {
         mediaType: "movie",
       };
     }
-
-    console.log("Overseerr Extension: Video info processed", currentVideoInfo);
-  } catch (error) {
-    console.error("Error processing video info:", error);
+  } catch {
     currentVideoInfo = {
       ...videoInfo,
       cleanedTitle: videoInfo.title,
@@ -114,7 +109,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
   return false;
 });
-console.log("Message listener registered");
 
 // Watch for URL changes (YouTube SPA navigation)
 let lastUrl = location.href;
@@ -123,7 +117,6 @@ new MutationObserver(() => {
   const url = location.href;
   if (url !== lastUrl) {
     lastUrl = url;
-    console.log("Overseerr Extension: URL changed, reprocessing...");
     // Wait a bit for page to load
     setTimeout(processVideoInfo, 1500);
   }
@@ -144,7 +137,6 @@ const observer = new MutationObserver((mutations) => {
     if (mutation.type === "childList") {
       const titleElement = document.querySelector("h1.ytd-watch-metadata");
       if (titleElement && titleElement.textContent.trim() !== currentVideoInfo.title) {
-        console.log("Overseerr Extension: Title changed, reprocessing...");
         setTimeout(processVideoInfo, 500);
         break;
       }

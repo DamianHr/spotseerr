@@ -249,7 +249,7 @@
   },
 
   "connectionSuccess": {
-    "message": "Connected to Overseerr v$VERSION$",
+    "message": "Connected to Overseerr v$version$",
     "description": "Success message with version",
     "placeholders": {
       "version": {

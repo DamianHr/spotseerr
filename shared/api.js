@@ -149,19 +149,13 @@ export async function createRequest(requestData) {
  */
 export async function testConnection() {
   try {
-    console.log("Testing connection to Overseerr...");
-
-    // Use 5 second timeout for connection test (quicker feedback)
     const status = await apiRequest("/status", {}, 5000);
-
-    console.log("Connection successful:", status);
     return {
       success: true,
       version: status.version,
-      message: `Connected to Overseerr v${status.version}`,
+      message: chrome.i18n.getMessage("connectionSuccess", [status.version]),
     };
   } catch (error) {
-    console.error("Connection test failed:", error);
     return {
       success: false,
       message: error.message,
@@ -197,7 +191,6 @@ export async function getRequestStatus(mediaId, mediaType) {
       };
     }
   } catch (error) {
-    console.error("Error getting request status:", error);
     return {
       id: mediaId,
       mediaType,

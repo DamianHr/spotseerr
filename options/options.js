@@ -2,6 +2,7 @@
 
 import { getAllSettings, saveSettings, STORAGE_KEYS } from "../shared/storage.js";
 import { isValidUrl } from "../shared/utils.js";
+import { testConnection as apiTestConnection } from "../shared/api.js";
 
 // DOM Elements
 const elements = {
@@ -25,9 +26,7 @@ const elements = {
 
 // Initialize
 document.addEventListener("DOMContentLoaded", async () => {
-  // Check if chrome APIs are available
   if (typeof chrome === "undefined" || !chrome.storage) {
-    console.error("Chrome APIs not available");
     showError(chrome.i18n.getMessage("errorExtensionApis"));
     return;
   }
@@ -62,8 +61,7 @@ async function loadSettings() {
     elements.apiKey.value = settings[STORAGE_KEYS.API_KEY] || "";
     elements.notificationsEnabled.checked = settings[STORAGE_KEYS.NOTIFICATIONS_ENABLED] !== false;
     elements.debugEnabled.checked = settings[STORAGE_KEYS.DEBUG_ENABLED] === true;
-  } catch (error) {
-    console.error("Error loading settings:", error);
+  } catch {
     showError(chrome.i18n.getMessage("errorLoadSettings"));
   }
 }
@@ -103,7 +101,6 @@ async function handleSubmit(e) {
 
     showSuccess();
   } catch (error) {
-    console.error("Error saving settings:", error);
     showError(error.message);
   } finally {
     setSaveLoading(false);
@@ -124,36 +121,22 @@ async function testConnection() {
       throw new Error(chrome.i18n.getMessage("validationBothRequired"));
     }
 
-    console.log("Saving test settings...");
-    // Temporarily save to test
-    const testSettings = {
+    await saveSettings({
       [STORAGE_KEYS.OVERSEERR_URL]: url,
       [STORAGE_KEYS.API_KEY]: apiKey,
       [STORAGE_KEYS.NOTIFICATIONS_ENABLED]: elements.notificationsEnabled.checked,
       [STORAGE_KEYS.DEBUG_ENABLED]: elements.debugEnabled.checked,
-    };
+    });
 
-    await saveSettings(testSettings);
-    console.log("Settings saved, testing connection...");
+    const response = await apiTestConnection();
 
-    // Test connection with 10 second timeout
-    const response = await Promise.race([
-      chrome.runtime.sendMessage({ action: "testConnection" }),
-      new Promise((_, reject) => setTimeout(() => reject(new Error(chrome.i18n.getMessage("requestTimeout"))), 10000)),
-    ]);
-
-    console.log("Connection test response:", response);
-
-    if (response && response.success) {
+    if (response.success) {
       elements.connectionStatus.textContent = `✓ ${response.message}`;
       elements.connectionStatus.classList.add("success");
-    } else if (response) {
-      throw new Error(response.message || chrome.i18n.getMessage("connectionFailed"));
     } else {
-      throw new Error(chrome.i18n.getMessage("noResponse"));
+      throw new Error(response.message || chrome.i18n.getMessage("connectionFailed"));
     }
   } catch (error) {
-    console.error("Connection test error:", error);
     elements.connectionStatus.textContent = `✗ ${error.message}`;
     elements.connectionStatus.classList.add("error");
   } finally {

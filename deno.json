@@ -29,6 +29,7 @@
         "default-param-last",
         "eqeqeq",
         "explicit-function-return-type",
+        "no-console",
         "no-debugger",
         "no-deprecated",
         "no-dupe-else-if",
