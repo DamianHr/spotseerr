@@ -1,0 +1,58 @@
+{
+  "name": "overseerr-youtube-extension",
+  "version": "1.0.0",
+  "exports": "./content.js",
+  "tasks": {
+    "lint": "deno lint",
+    "lint:fix": "deno lint --fix",
+    "fmt": "deno fmt",
+    "fmt:check": "deno fmt --check",
+    "check": "deno task lint && deno task fmt:check",
+    "convert-icons": "deno run --allow-read --allow-write --allow-net --allow-run convert-icons.ts"
+  },
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es2022", "deno.ns"],
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "lint": {
+    "include": ["**/*.js", "**/*.ts"],
+    "exclude": ["node_modules", "deno.lock"],
+    "rules": {
+      "tags": ["recommended"],
+      "include": [
+        "ban-unused-ignore",
+        "camelcase",
+        "default-param-last",
+        "eqeqeq",
+        "explicit-function-return-type",
+        "no-debugger",
+        "no-deprecated",
+        "no-dupe-else-if",
+        "no-empty",
+        "no-inner-declarations",
+        "no-irregular-whitespace",
+        "no-throw-literal",
+        "no-unreachable",
+        "no-unused-vars",
+        "prefer-const",
+        "require-await",
+        "triple-slash-reference",
+        "valid-typeof"
+      ]
+    }
+  },
+  "fmt": {
+    "include": ["**/*.js", "**/*.ts"],
+    "exclude": ["node_modules", "deno.lock"],
+    "useTabs": false,
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false,
+    "proseWrap": "preserve"
+  }
+}
