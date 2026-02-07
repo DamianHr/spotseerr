@@ -322,8 +322,8 @@ chrome.runtime.onInstalled.addListener((details) => {
     chrome.notifications.create({
       type: "basic",
       iconUrl: "icons/icon48.png",
-      title: "Overseerr YouTube Extension Installed",
-      message: "Please configure your Overseerr settings to get started.",
+      title: chrome.i18n.getMessage("notificationInstallTitle"),
+      message: chrome.i18n.getMessage("notificationInstallMessage"),
       priority: 2,
     });
   }

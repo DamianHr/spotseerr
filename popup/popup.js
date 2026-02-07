@@ -13,7 +13,7 @@ const elements = {
   errorState: document.getElementById("errorState"),
   videoTitle: document.getElementById("videoTitle"),
   mediaType: document.getElementById("mediaType"),
-  searchStatus: document.getElementById("searchStatus"),
+  parsingStatus: document.getElementById("parsingStatus"),
   searchTitleInput: document.getElementById("searchTitleInput"),
   searchBtn: document.getElementById("searchBtn"),
   refreshVideoBtn: document.getElementById("refreshVideoBtn"),
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "Some DOM elements are missing. Please check the HTML structure.",
     );
   }
-  addLog("Popup opened", "info");
+  addLog(chrome.i18n.getMessage("logPopupOpened"), "info");
   setupEventListeners();
   await initialize();
 });
@@ -114,7 +114,7 @@ function addLog(message, type = "info") {
 
 function clearLogs() {
   elements.logContainer.innerHTML = "";
-  addLog("Logs cleared", "info");
+  addLog(chrome.i18n.getMessage("logsCleared"), "info");
 }
 
 function escapeHtml(text) {
@@ -131,7 +131,7 @@ async function initialize() {
     const settings = await getAllSettings();
 
     if (!settings) {
-      addLog("Failed to load settings", "error");
+      addLog(chrome.i18n.getMessage("logSettingsFailed"), "error");
       showConfigWarning();
       return;
     }
@@ -150,7 +150,7 @@ async function initialize() {
     const hasApiKey = settings[STORAGE_KEYS.API_KEY];
 
     if (!hasUrl || !hasApiKey) {
-      addLog("Missing configuration - showing config warning", "warn");
+      addLog(chrome.i18n.getMessage("logMissingConfig"), "warn");
       showConfigWarning();
       return;
     }
@@ -159,19 +159,19 @@ async function initialize() {
     const videoInfo = await getCurrentVideoInfo();
 
     if (!videoInfo || !videoInfo.title) {
-      addLog("No YouTube video detected", "warn");
+      addLog(chrome.i18n.getMessage("logNoVideo"), "warn");
       showNotYoutube();
       return;
     }
 
-    addLog(`Video detected: "${videoInfo.title}"`, "success");
+    addLog(chrome.i18n.getMessage("logVideoDetected", [videoInfo.title]), "success");
 
     showVideoInfo(videoInfo);
 
     // Auto-trigger search
     await handleManualSearch();
   } catch (error) {
-    addLog(`Initialization error: ${error.message}`, "error");
+    addLog(chrome.i18n.getMessage("logInitializationError", [error.message]), "error");
     console.error("Initialization error:", error);
     showError(error.message);
   }
@@ -181,7 +181,7 @@ async function handleManualSearch() {
   const searchTitle = elements.searchTitleInput ? elements.searchTitleInput.value.trim() : "";
 
   if (!searchTitle) {
-    addLog("Please enter a title to search", "error");
+    addLog(chrome.i18n.getMessage("logEnterTitle"), "error");
     return;
   }
 
@@ -190,14 +190,14 @@ async function handleManualSearch() {
     elements.searchBtn.disabled = true;
     elements.searchBtn.innerHTML = `
       <div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; margin-right: 6px;"></div>
-      Searching...
+      ${chrome.i18n.getMessage("statusParsing")}
     `;
   }
 
   // Update status
-  if (elements.searchStatus) {
-    elements.searchStatus.textContent = "Searching...";
-    elements.searchStatus.className = "search-status searching";
+  if (elements.parsingStatus) {
+    elements.parsingStatus.textContent = chrome.i18n.getMessage("statusParsing");
+    elements.parsingStatus.className = "parsing-status parsing";
   }
 
   // Clear previous results
@@ -209,17 +209,17 @@ async function handleManualSearch() {
     await searchOverseerr(searchTitle);
 
     // Update status to complete
-    if (elements.searchStatus) {
-      elements.searchStatus.textContent = "Search complete";
-      elements.searchStatus.className = "search-status complete";
+    if (elements.parsingStatus) {
+      elements.parsingStatus.textContent = chrome.i18n.getMessage("statusParsingComplete");
+      elements.parsingStatus.className = "parsing-status complete";
     }
   } catch (error) {
-    addLog(`Search failed: ${error.message}`, "error");
+    addLog(chrome.i18n.getMessage("logSearchFailed", [error.message]), "error");
 
     // Update status to error
-    if (elements.searchStatus) {
-      elements.searchStatus.textContent = "Search failed";
-      elements.searchStatus.className = "search-status error";
+    if (elements.parsingStatus) {
+      elements.parsingStatus.textContent = chrome.i18n.getMessage("statusParsingFailed");
+      elements.parsingStatus.className = "parsing-status error";
     }
   } finally {
     // Restore button
@@ -230,7 +230,7 @@ async function handleManualSearch() {
           <circle cx="11" cy="11" r="8"></circle>
           <path d="m21 21-4.35-4.35"></path>
         </svg>
-        Search on Overseerr
+        ${chrome.i18n.getMessage("searchButton")}
       `;
     }
   }
@@ -242,7 +242,7 @@ async function refreshVideoDetection() {
     elements.refreshVideoBtn.disabled = true;
     elements.refreshVideoBtn.innerHTML = `
       <div class="spinner" style="width: 12px; height: 12px; border-width: 2px; display: inline-block; margin-right: 6px;"></div>
-      Detecting...
+      ${chrome.i18n.getMessage("statusDetecting")}
     `;
   }
 
@@ -255,33 +255,35 @@ async function refreshVideoDetection() {
       elements.noResultsState.classList.add("hidden");
     }
     if (elements.resultsList) elements.resultsList.innerHTML = "";
-    if (elements.searchStatus) {
-      elements.searchStatus.textContent = "";
-      elements.searchStatus.className = "search-status";
+    if (elements.parsingStatus) {
+      elements.parsingStatus.textContent = "";
+      elements.parsingStatus.className = "parsing-status";
     }
 
     // Get fresh video info from content script
     const videoInfo = await getCurrentVideoInfo();
 
     if (!videoInfo || !videoInfo.title) {
-      addLog("No YouTube video detected on current page", "warn");
+      addLog(chrome.i18n.getMessage("logNoVideoOnPage"), "warn");
       return;
     }
 
-    addLog(`Video re-detected: "${videoInfo.title}"`, "success");
+    addLog(chrome.i18n.getMessage("logVideoRedetected", [videoInfo.title]), "success");
 
     // Update UI with new video info
     if (elements.videoTitle) {
       elements.videoTitle.textContent = truncateText(videoInfo.title, 80);
     }
     if (elements.mediaType) {
-      elements.mediaType.textContent = videoInfo.mediaType === "tv" ? "TV Show" : "Movie";
+      elements.mediaType.textContent = videoInfo.mediaType === "tv"
+        ? chrome.i18n.getMessage("mediaTypeTv")
+        : chrome.i18n.getMessage("mediaTypeMovie");
     }
     if (elements.searchTitleInput) {
       elements.searchTitleInput.value = videoInfo.cleanedTitle;
     }
   } catch (error) {
-    addLog(`Error refreshing video: ${error.message}`, "error");
+    addLog(chrome.i18n.getMessage("logErrorRefreshing", [error.message]), "error");
     console.error("Error refreshing video detection:", error);
   } finally {
     // Restore button
@@ -338,7 +340,7 @@ async function showResults(results) {
   if (elements.resultsList) elements.resultsList.innerHTML = "";
 
   if (sortedResults.length === 0) {
-    addLog("No results found on Overseerr", "warn");
+    addLog(chrome.i18n.getMessage("logNoResults"), "warn");
     if (elements.resultsSection) {
       elements.resultsSection.classList.add("hidden");
     }
@@ -348,7 +350,7 @@ async function showResults(results) {
     return;
   }
 
-  addLog(`Found ${sortedResults.length} results, checking status...`, "info");
+  addLog(chrome.i18n.getMessage("logCheckingStatus", [sortedResults.length.toString()]), "info");
 
   // Fetch detailed information for each result to get correct request status
   const resultsWithDetails = await Promise.all(
@@ -373,6 +375,11 @@ async function showResults(results) {
         return result;
       }
     }),
+  );
+
+  addLog(
+    chrome.i18n.getMessage("logResultsFound", [resultsWithDetails.length.toString()]),
+    "success",
   );
 
   resultsWithDetails.forEach((result) => {
@@ -424,7 +431,7 @@ function createResultElement(result) {
   if (year) {
     year.textContent = result.releaseDate || result.firstAirDate
       ? new Date(result.releaseDate || result.firstAirDate).getFullYear()
-      : "N/A";
+      : chrome.i18n.getMessage("yearNotAvailable");
   }
 
   if (status && requestBtn) {
@@ -451,30 +458,30 @@ function updateResultStatus(result, statusElement, buttonElement) {
     const hasRequests = mediaInfo.requests && mediaInfo.requests.length > 0;
 
     if (status >= 4) {
-      statusElement.textContent = "Available";
+      statusElement.textContent = chrome.i18n.getMessage("statusAvailable");
       statusElement.classList.add("available");
-      buttonElement.textContent = "Available";
+      buttonElement.textContent = chrome.i18n.getMessage("statusAvailable");
       buttonElement.classList.add("available");
       buttonElement.disabled = true;
     } else if (hasRequests) {
-      statusElement.textContent = "Requested";
+      statusElement.textContent = chrome.i18n.getMessage("statusRequested");
       statusElement.classList.add("requested");
-      buttonElement.textContent = "Requested";
+      buttonElement.textContent = chrome.i18n.getMessage("statusRequested");
       buttonElement.classList.add("requested");
       buttonElement.disabled = true;
     } else {
-      statusElement.textContent = "Not Requested";
-      buttonElement.textContent = "Request";
+      statusElement.textContent = chrome.i18n.getMessage("statusNotRequested");
+      buttonElement.textContent = chrome.i18n.getMessage("requestButton");
     }
   } else {
-    statusElement.textContent = "Not Requested";
-    buttonElement.textContent = "Request";
+    statusElement.textContent = chrome.i18n.getMessage("statusNotRequested");
+    buttonElement.textContent = chrome.i18n.getMessage("requestButton");
   }
 }
 
 async function handleRequest(result, button) {
   if (!button) {
-    addLog("Error: Button element is null", "error");
+    addLog(chrome.i18n.getMessage("logErrorButtonNull"), "error");
     return;
   }
 
@@ -504,7 +511,7 @@ async function handleRequest(result, button) {
     });
 
     if (response.success) {
-      button.textContent = "Requested";
+      button.textContent = chrome.i18n.getMessage("statusRequested");
       button.classList.add("success");
       button.disabled = true;
 
@@ -513,37 +520,37 @@ async function handleRequest(result, button) {
       if (resultItem) {
         const statusElement = resultItem.querySelector(".result-status");
         if (statusElement) {
-          statusElement.textContent = "Requested";
+          statusElement.textContent = chrome.i18n.getMessage("statusRequested");
           statusElement.classList.remove("available");
           statusElement.classList.add("requested");
         }
       }
 
-      addLog(`Request created successfully: "${title}"`, "success");
+      addLog(chrome.i18n.getMessage("logRequestSuccess", [title]), "success");
 
       await chrome.runtime.sendMessage({
         action: "showNotification",
-        title: "Request Successful",
-        message: `"${title}" has been requested on Overseerr`,
+        title: chrome.i18n.getMessage("notificationRequestSuccess"),
+        message: chrome.i18n.getMessage("notificationRequestSuccessMessage", [title]),
         type: "success",
       });
     } else {
-      throw new Error(response.error || "Failed to create request");
+      throw new Error(response.error || chrome.i18n.getMessage("requestFailed"));
     }
   } catch (error) {
-    addLog(`Request failed: ${error.message}`, "error");
+    addLog(chrome.i18n.getMessage("logRequestFailed", [error.message]), "error");
     button.disabled = false;
     const btnText = button.querySelector(".btn-text");
     const btnLoader = button.querySelector(".btn-loader");
     if (btnText) {
       btnText.classList.remove("hidden");
-      btnText.textContent = "Retry";
+      btnText.textContent = chrome.i18n.getMessage("retryRequestButton");
     }
     if (btnLoader) btnLoader.classList.add("hidden");
 
     await chrome.runtime.sendMessage({
       action: "showNotification",
-      title: "Request Failed",
+      title: chrome.i18n.getMessage("notificationRequestFailed"),
       message: error.message,
       type: "error",
     });
@@ -564,7 +571,7 @@ async function getCurrentVideoInfo() {
     });
 
     if (!tab.url || !tab.url.includes("youtube.com/watch")) {
-      addLog("Not on YouTube watch page", "warn");
+      addLog(chrome.i18n.getMessage("logNotOnYoutube"), "warn");
       return null;
     }
 
@@ -576,11 +583,11 @@ async function getCurrentVideoInfo() {
         });
 
         if (response && response.success) {
-          addLog("Content script responded successfully", "success");
+          addLog(chrome.i18n.getMessage("logContentScriptSuccess"), "success");
           return response.data;
         } else {
           addLog(
-            `Content script error: ${response?.error || "No response"}`,
+            chrome.i18n.getMessage("logContentScriptError", [response?.error || "No response"]),
             "error",
           );
         }
@@ -604,12 +611,12 @@ async function getCurrentVideoInfo() {
             });
 
             if (response && response.success) {
-              addLog("Content script responded after injection", "success");
+              addLog(chrome.i18n.getMessage("logContentScriptInjected"), "success");
               return response.data;
             }
           } catch (injectionError) {
             addLog(
-              `Failed to inject content script: ${injectionError.message}`,
+              chrome.i18n.getMessage("logInjectionFailed", [injectionError.message]),
               "error",
             );
           }
@@ -624,7 +631,7 @@ async function getCurrentVideoInfo() {
 
     return null;
   } catch (error) {
-    addLog(`Error getting video info: ${error.message}`, "error");
+    addLog(chrome.i18n.getMessage("logErrorGettingVideo", [error.message]), "error");
     return null;
   }
 }
@@ -643,12 +650,12 @@ async function searchOverseerr(query) {
       );
       await showResults(mediaResults.slice(0, 5));
     } else {
-      const errorMsg = response?.error || "Search failed - no response from background script";
-      addLog(`Search error: ${errorMsg}`, "error");
+      const errorMsg = response?.error || chrome.i18n.getMessage("noResponse");
+      addLog(chrome.i18n.getMessage("logSearchError", [errorMsg]), "error");
       throw new Error(errorMsg);
     }
   } catch (error) {
-    addLog(`Search failed: ${error.message}`, "error");
+    addLog(chrome.i18n.getMessage("logSearchFailed", [error.message]), "error");
     throw error;
   }
 }

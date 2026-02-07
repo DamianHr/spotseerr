@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Overseerr YouTube Extension</title>
+  <title data-i18n="extensionName">Overseerr YouTube Extension</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -12,9 +12,9 @@
     <header class="header">
       <div class="header-content">
         <img src="../icons/icon32.png" alt="Overseerr" class="header-icon">
-        <h1 class="header-title">Overseerr</h1>
+        <h1 class="header-title" data-i18n="popupHeader">Overseerr</h1>
       </div>
-      <button id="settingsBtn" class="icon-btn" title="Settings">
+      <button id="settingsBtn" class="icon-btn" data-i18n-title="settingsTooltip" title="Settings">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"></circle>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -30,9 +30,9 @@
           <line x1="12" y1="9" x2="12" y2="13"></line>
           <line x1="12" y1="17" x2="12.01" y2="17"></line>
         </svg>
-        <span>Please configure Overseerr settings</span>
+        <span data-i18n="configureSettings">Please configure Overseerr settings</span>
       </div>
-      <button id="openSettingsBtn" class="btn btn-sm">Open Settings</button>
+      <button id="openSettingsBtn" class="btn btn-sm" data-i18n="openSettings">Open Settings</button>
     </div>
 
     <!-- Not on YouTube State -->
@@ -41,7 +41,7 @@
         <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
         <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
       </svg>
-      <p>Navigate to a YouTube video to get started</p>
+      <p data-i18n="notOnYoutube">Navigate to a YouTube video to get started</p>
     </div>
 
     <!-- Current Video Section -->
@@ -50,15 +50,15 @@
         <h2 id="videoTitle" class="video-title"></h2>
         <div class="video-meta">
           <span id="mediaType" class="badge"></span>
-          <span id="searchStatus" class="search-status"></span>
+          <span id="parsingStatus" class="parsing-status"></span>
         </div>
       </div>
       
       <div class="search-input-group">
-        <label for="searchTitleInput" class="search-label">Search title:</label>
+        <label for="searchTitleInput" class="search-label" data-i18n="searchTitleLabel">Search title:</label>
         <div class="input-with-icon">
           <input type="text" id="searchTitleInput" class="search-input" placeholder="Enter title to search...">
-          <button id="refreshVideoBtn" class="input-icon-btn" title="Refresh video detection">
+          <button id="refreshVideoBtn" class="input-icon-btn" data-i18n-title="refreshVideoTooltip" title="Refresh video detection">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M23 4v6h-6"></path>
               <path d="M1 20v-6h6"></path>
@@ -66,7 +66,7 @@
             </svg>
           </button>
         </div>
-        <p class="search-hint">Auto-search enabled. Edit the title if needed.</p>
+        <p class="search-hint" data-i18n="autoSearchHint">Auto-search enabled. Edit the title if needed.</p>
       </div>
       
       <button id="searchBtn" class="btn btn-primary search-btn">
@@ -74,13 +74,13 @@
           <circle cx="11" cy="11" r="8"></circle>
           <path d="m21 21-4.35-4.35"></path>
         </svg>
-        Search on Overseerr
+        <span data-i18n="searchButton">Search on Overseerr</span>
       </button>
     </div>
 
     <!-- Search Results -->
     <div id="resultsSection" class="results-section hidden">
-      <h3 class="section-title">Search Results</h3>
+      <h3 class="section-title" data-i18n="searchResultsTitle">Search Results</h3>
       <div id="resultsList" class="results-list">
         <!-- Results will be populated here -->
       </div>
@@ -92,8 +92,8 @@
         <circle cx="11" cy="11" r="8"></circle>
         <path d="m21 21-4.35-4.35"></path>
       </svg>
-      <p>No results found on Overseerr</p>
-      <p class="sub-text">Try editing the search title or searching manually</p>
+      <p data-i18n="noResults">No results found on Overseerr</p>
+      <p class="sub-text" data-i18n="noResultsHint">Try editing the search title or searching manually</p>
     </div>
 
     <!-- Error State -->
@@ -103,15 +103,15 @@
         <line x1="12" y1="8" x2="12" y2="12"></line>
         <line x1="12" y1="16" x2="12.01" y2="16"></line>
       </svg>
-      <p id="errorMessage">Something went wrong</p>
-      <button id="retryBtn" class="btn btn-secondary">Retry</button>
+      <p id="errorMessage" data-i18n="errorTitle">Something went wrong</p>
+      <button id="retryBtn" class="btn btn-secondary" data-i18n="retryButton">Retry</button>
     </div>
 
     <!-- Debug Log Section (moved to bottom) -->
     <div id="logSection" class="log-section">
       <div class="log-header">
-        <span class="log-title">Debug Log</span>
-        <button id="clearLogsBtn" class="log-clear-btn">Clear</button>
+        <span class="log-title" data-i18n="debugLogTitle">Debug Log</span>
+        <button id="clearLogsBtn" class="log-clear-btn" data-i18n="clearButton">Clear</button>
       </div>
       <div id="logContainer" class="log-container">
         <!-- Logs will appear here -->
@@ -131,12 +131,13 @@
         </div>
       </div>
       <button class="btn btn-request">
-        <span class="btn-text">Request</span>
+        <span class="btn-text request-text" data-i18n="requestButton">Request</span>
         <span class="btn-loader hidden"></span>
       </button>
     </div>
   </template>
 
+  <script src="../shared/i18n.js"></script>
   <script src="popup.js" type="module"></script>
 </body>
 </html>

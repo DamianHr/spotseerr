@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Check if chrome APIs are available
   if (typeof chrome === "undefined" || !chrome.storage) {
     console.error("Chrome APIs not available");
-    showError("Extension APIs not available. Please reload the extension.");
+    showError(chrome.i18n.getMessage("errorExtensionApis"));
     return;
   }
 
@@ -64,7 +64,7 @@ async function loadSettings() {
     elements.debugEnabled.checked = settings[STORAGE_KEYS.DEBUG_ENABLED] === true;
   } catch (error) {
     console.error("Error loading settings:", error);
-    showError("Failed to load settings. Please try again.");
+    showError(chrome.i18n.getMessage("errorLoadSettings"));
   }
 }
 
@@ -80,15 +80,15 @@ async function handleSubmit(e) {
     const apiKey = elements.apiKey.value.trim();
 
     if (!url) {
-      throw new Error("Overseerr URL is required");
+      throw new Error(chrome.i18n.getMessage("validationUrlRequired"));
     }
 
     if (!isValidUrl(url)) {
-      throw new Error("Please enter a valid URL (e.g., https://overseerr.example.com)");
+      throw new Error(chrome.i18n.getMessage("validationUrlInvalid"));
     }
 
     if (!apiKey) {
-      throw new Error("API key is required");
+      throw new Error(chrome.i18n.getMessage("validationApiKeyRequired"));
     }
 
     // Save settings
@@ -121,7 +121,7 @@ async function testConnection() {
     const apiKey = elements.apiKey.value.trim();
 
     if (!url || !apiKey) {
-      throw new Error("Please enter both URL and API key");
+      throw new Error(chrome.i18n.getMessage("validationBothRequired"));
     }
 
     console.log("Saving test settings...");
@@ -140,7 +140,7 @@ async function testConnection() {
     const response = await Promise.race([
       chrome.runtime.sendMessage({ action: "testConnection" }),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out after 10 seconds")), 10000)
+        setTimeout(() => reject(new Error(chrome.i18n.getMessage("requestTimeout"))), 10000)
       ),
     ]);
 
@@ -150,9 +150,9 @@ async function testConnection() {
       elements.connectionStatus.textContent = `✓ ${response.message}`;
       elements.connectionStatus.classList.add("success");
     } else if (response) {
-      throw new Error(response.message || "Connection test failed");
+      throw new Error(response.message || chrome.i18n.getMessage("connectionFailed"));
     } else {
-      throw new Error("No response received from background script");
+      throw new Error(chrome.i18n.getMessage("noResponse"));
     }
   } catch (error) {
     console.error("Connection test error:", error);
@@ -180,7 +180,7 @@ function toggleApiKeyVisibility() {
 }
 
 function resetSettings() {
-  if (confirm("Are you sure you want to reset all settings to defaults?")) {
+  if (confirm(chrome.i18n.getMessage("confirmReset"))) {
     hideAlerts();
 
     elements.overseerrUrl.value = "";
@@ -190,7 +190,7 @@ function resetSettings() {
     elements.connectionStatus.textContent = "";
     elements.connectionStatus.className = "connection-status";
 
-    showSuccess("Settings reset. Click Save to apply changes.");
+    showSuccess(chrome.i18n.getMessage("settingsReset"));
   }
 }
 
@@ -206,7 +206,7 @@ function setTestLoading(loading) {
   elements.testConnection.disabled = loading;
 }
 
-function showSuccess(message = "Settings saved successfully!") {
+function showSuccess(message = chrome.i18n.getMessage("settingsSaved")) {
   elements.successMessage.querySelector("span").textContent = message;
   elements.successMessage.classList.remove("hidden");
   elements.errorMessage.classList.add("hidden");

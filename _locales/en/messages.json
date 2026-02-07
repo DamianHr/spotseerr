@@ -1,3 +1,496 @@
 {
+  "extensionName": {
+    "message": "Overseerr YouTube Extension",
+    "description": "Name of the extension"
+  },
+  "extensionDescription": {
+    "message": "Request movies and TV shows from YouTube to your Overseerr instance",
+    "description": "Description of the extension"
+  },
 
+  "popupTitle": {
+    "message": "Overseerr YouTube Extension",
+    "description": "Title of the popup page"
+  },
+  "popupHeader": {
+    "message": "Overseerr",
+    "description": "Header text in popup"
+  },
+  "settingsTooltip": {
+    "message": "Settings",
+    "description": "Tooltip for settings button"
+  },
+  "configureSettings": {
+    "message": "Please configure Overseerr settings",
+    "description": "Warning message when settings are missing"
+  },
+  "openSettings": {
+    "message": "Open Settings",
+    "description": "Button to open settings page"
+  },
+  "notOnYoutube": {
+    "message": "Navigate to a YouTube video to get started",
+    "description": "Message when not on YouTube"
+  },
+  "searchTitleLabel": {
+    "message": "Search title:",
+    "description": "Label for search input"
+  },
+  "refreshVideoTooltip": {
+    "message": "Refresh video detection",
+    "description": "Tooltip for refresh button"
+  },
+  "autoSearchHint": {
+    "message": "Auto-search enabled. Edit the title if needed.",
+    "description": "Hint text below search input"
+  },
+  "searchButton": {
+    "message": "Search on Overseerr",
+    "description": "Search button text"
+  },
+  "searchResultsTitle": {
+    "message": "Search Results",
+    "description": "Title for search results section"
+  },
+  "noResults": {
+    "message": "No results found on Overseerr",
+    "description": "Message when no search results"
+  },
+  "noResultsHint": {
+    "message": "Try editing the search title or searching manually",
+    "description": "Hint for no results"
+  },
+  "errorTitle": {
+    "message": "Something went wrong",
+    "description": "Generic error message"
+  },
+  "retryButton": {
+    "message": "Retry",
+    "description": "Retry button text"
+  },
+  "debugLogTitle": {
+    "message": "Debug Log",
+    "description": "Title for debug log section"
+  },
+  "clearButton": {
+    "message": "Clear",
+    "description": "Clear button text"
+  },
+
+  "mediaTypeMovie": {
+    "message": "Movie",
+    "description": "Label for movie media type"
+  },
+  "mediaTypeTv": {
+    "message": "TV Show",
+    "description": "Label for TV show media type"
+  },
+  "statusParsing": {
+    "message": "Parsing...",
+    "description": "Status while parsing"
+  },
+  "statusParsingComplete": {
+    "message": "Parsing complete",
+    "description": "Status when parsing is done"
+  },
+  "statusParsingFailed": {
+    "message": "Parsing failed",
+    "description": "Status when parsing fails"
+  },
+  "statusDetecting": {
+    "message": "Detecting...",
+    "description": "Status while detecting video"
+  },
+  "yearNotAvailable": {
+    "message": "N/A",
+    "description": "Not available label for year"
+  },
+  "statusAvailable": {
+    "message": "Available",
+    "description": "Status when media is available"
+  },
+  "statusRequested": {
+    "message": "Requested",
+    "description": "Status when media is requested"
+  },
+  "statusNotRequested": {
+    "message": "Not Requested",
+    "description": "Status when media is not requested"
+  },
+  "requestButton": {
+    "message": "Request",
+    "description": "Request button text"
+  },
+  "retryRequestButton": {
+    "message": "Retry",
+    "description": "Retry request button text"
+  },
+
+  "optionsTitle": {
+    "message": "Overseerr YouTube Extension - Settings",
+    "description": "Title of the options page"
+  },
+  "optionsHeader": {
+    "message": "Overseerr YouTube Extension",
+    "description": "Header in options page"
+  },
+  "optionsSubtitle": {
+    "message": "Configure your Overseerr connection",
+    "description": "Subtitle in options page"
+  },
+  "connectionSettings": {
+    "message": "Connection Settings",
+    "description": "Section title for connection settings"
+  },
+  "overseerrUrlLabel": {
+    "message": "Overseerr URL",
+    "description": "Label for Overseerr URL field"
+  },
+  "requiredField": {
+    "message": "required",
+    "description": "Required field indicator"
+  },
+  "urlPlaceholder": {
+    "message": "https://overseerr.example.com",
+    "description": "Placeholder for URL input"
+  },
+  "urlHelp": {
+    "message": "Your Overseerr instance URL (e.g., https://overseerr.example.com)",
+    "description": "Help text for URL field"
+  },
+  "apiKeyLabel": {
+    "message": "API Key",
+    "description": "Label for API key field"
+  },
+  "apiKeyPlaceholder": {
+    "message": "Enter your Overseerr API key",
+    "description": "Placeholder for API key input"
+  },
+  "toggleApiKeyTooltip": {
+    "message": "Show/Hide API Key",
+    "description": "Tooltip for API key visibility toggle"
+  },
+  "apiKeyHelp": {
+    "message": "Find your API key in Overseerr Settings > General > API Key",
+    "description": "Help text for API key field"
+  },
+  "testConnectionButton": {
+    "message": "Test Connection",
+    "description": "Test connection button"
+  },
+  "preferencesSection": {
+    "message": "Preferences",
+    "description": "Section title for preferences"
+  },
+  "enableNotifications": {
+    "message": "Enable notifications",
+    "description": "Label for notifications checkbox"
+  },
+  "notificationsHelp": {
+    "message": "Show browser notifications when requests are successful or fail",
+    "description": "Help text for notifications"
+  },
+  "enableDebugLogging": {
+    "message": "Enable debug logging",
+    "description": "Label for debug logging checkbox"
+  },
+  "debugLoggingHelp": {
+    "message": "Show debug log window in the popup for troubleshooting",
+    "description": "Help text for debug logging"
+  },
+  "saveSettingsButton": {
+    "message": "Save Settings",
+    "description": "Save settings button"
+  },
+  "resetDefaultsButton": {
+    "message": "Reset to Defaults",
+    "description": "Reset to defaults button"
+  },
+  "settingsSaved": {
+    "message": "Settings saved successfully!",
+    "description": "Success message after saving"
+  },
+  "settingsReset": {
+    "message": "Settings reset. Click Save to apply changes.",
+    "description": "Message after resetting settings"
+  },
+  "errorOccurred": {
+    "message": "An error occurred",
+    "description": "Generic error message"
+  },
+  "footerVersion": {
+    "message": "Overseerr YouTube Extension v1.0.0",
+    "description": "Version in footer"
+  },
+  "overseerrDocsLink": {
+    "message": "Overseerr Docs",
+    "description": "Link to Overseerr documentation"
+  },
+  "overseerrGithubLink": {
+    "message": "Overseerr GitHub",
+    "description": "Link to Overseerr GitHub"
+  },
+
+  "validationUrlRequired": {
+    "message": "Overseerr URL is required",
+    "description": "Error when URL is missing"
+  },
+  "validationUrlInvalid": {
+    "message": "Please enter a valid URL (e.g., https://overseerr.example.com)",
+    "description": "Error when URL is invalid"
+  },
+  "validationApiKeyRequired": {
+    "message": "API key is required",
+    "description": "Error when API key is missing"
+  },
+  "validationBothRequired": {
+    "message": "Please enter both URL and API key",
+    "description": "Error when both fields are missing"
+  },
+
+  "connectionSuccess": {
+    "message": "Connected to Overseerr v$VERSION$",
+    "description": "Success message with version",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "1.0.0"
+      }
+    }
+  },
+  "connectionFailed": {
+    "message": "Connection test failed",
+    "description": "Connection test failure"
+  },
+  "noResponse": {
+    "message": "No response received from background script",
+    "description": "Error when no response from background"
+  },
+  "requestTimeout": {
+    "message": "Request timed out after 10 seconds",
+    "description": "Timeout error message"
+  },
+
+  "notificationRequestSuccess": {
+    "message": "Request Successful",
+    "description": "Notification title for successful request"
+  },
+  "notificationRequestSuccessMessage": {
+    "message": "$TITLE$ has been requested on Overseerr",
+    "description": "Notification message for successful request",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Movie Title"
+      }
+    }
+  },
+  "notificationRequestFailed": {
+    "message": "Request Failed",
+    "description": "Notification title for failed request"
+  },
+  "notificationInstallTitle": {
+    "message": "Overseerr YouTube Extension Installed",
+    "description": "Title for install notification"
+  },
+  "notificationInstallMessage": {
+    "message": "Please configure your Overseerr settings to get started.",
+    "description": "Message for install notification"
+  },
+
+  "logPopupOpened": {
+    "message": "Popup opened",
+    "description": "Log message when popup opens"
+  },
+  "logSettingsFailed": {
+    "message": "Failed to load settings",
+    "description": "Log message when settings fail to load"
+  },
+  "logMissingConfig": {
+    "message": "Missing configuration - showing config warning",
+    "description": "Log message for missing config"
+  },
+  "logNoVideo": {
+    "message": "No YouTube video detected",
+    "description": "Log message when no video found"
+  },
+  "logVideoDetected": {
+    "message": "Video detected: \"$TITLE$\"",
+    "description": "Log message when video detected",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Video Title"
+      }
+    }
+  },
+  "logVideoRedetected": {
+    "message": "Video re-detected: \"$TITLE$\"",
+    "description": "Log message when video re-detected",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Video Title"
+      }
+    }
+  },
+  "logNoVideoOnPage": {
+    "message": "No YouTube video detected on current page",
+    "description": "Log message when no video on page"
+  },
+  "logEnterTitle": {
+    "message": "Please enter a title to search",
+    "description": "Log message when search title is empty"
+  },
+  "logSearching": {
+    "message": "Searching...",
+    "description": "Log message when searching"
+  },
+  "logSearchFailed": {
+    "message": "Search failed: $ERROR$",
+    "description": "Log message when search fails",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
+  },
+  "logSearchError": {
+    "message": "Search error: $ERROR$",
+    "description": "Log error message",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
+  },
+  "logNoResults": {
+    "message": "No results found on Overseerr",
+    "description": "Log message when no results"
+  },
+  "logResultsFound": {
+    "message": "Found $COUNT$ results",
+    "description": "Log message with result count",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "logCheckingStatus": {
+    "message": "Found $COUNT$ results, checking status...",
+    "description": "Log message when checking status",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "logRequestSuccess": {
+    "message": "Request created successfully: \"$TITLE$\"",
+    "description": "Log message for successful request",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Movie Title"
+      }
+    }
+  },
+  "logRequestFailed": {
+    "message": "Request failed: $ERROR$",
+    "description": "Log message for failed request",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
+  },
+  "logNotOnYoutube": {
+    "message": "Not on YouTube watch page",
+    "description": "Log message when not on YouTube"
+  },
+  "logContentScriptSuccess": {
+    "message": "Content script responded successfully",
+    "description": "Log message when content script responds"
+  },
+  "logContentScriptError": {
+    "message": "Content script error: $ERROR$",
+    "description": "Log message for content script error",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
+  },
+  "logContentScriptInjected": {
+    "message": "Content script responded after injection",
+    "description": "Log message when script injected successfully"
+  },
+  "logInjectionFailed": {
+    "message": "Failed to inject content script: $ERROR$",
+    "description": "Log message when injection fails",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
+  },
+  "logsCleared": {
+    "message": "Logs cleared",
+    "description": "Log message when logs cleared"
+  },
+  "logInitializationError": {
+    "message": "Initialization error: $ERROR$",
+    "description": "Log message for initialization error",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
+  },
+  "logErrorButtonNull": {
+    "message": "Error: Button element is null",
+    "description": "Log error when button is null"
+  },
+  "logErrorRefreshing": {
+    "message": "Error refreshing video: $ERROR$",
+    "description": "Log error when refreshing video",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
+  },
+  "logErrorGettingVideo": {
+    "message": "Error getting video info: $ERROR$",
+    "description": "Log error when getting video info",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
+  },
+
+  "errorLoadSettings": {
+    "message": "Failed to load settings. Please try again.",
+    "description": "Error loading settings"
+  },
+  "errorExtensionApis": {
+    "message": "Extension APIs not available. Please reload the extension.",
+    "description": "Error when APIs unavailable"
+  },
+  "confirmReset": {
+    "message": "Are you sure you want to reset all settings to defaults?",
+    "description": "Confirmation dialog for reset"
+  }
 }
