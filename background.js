@@ -1,39 +1,11 @@
 // Background service worker for handling API requests and notifications
-// Using classic Chrome extension pattern for Manifest V3 compatibility
 // Version: 2025.02.04 - Fixed 404 error with media details pre-fetch
+
+import { getStorage, STORAGE_KEYS } from "./shared/storage.js";
 
 console.log("[Background] ========================================");
 console.log("[Background] Service Worker Loaded - Version 2025.02.04");
 console.log("[Background] ========================================");
-
-const STORAGE_KEYS = {
-  OVERSEERR_URL: "overseerrUrl",
-  API_KEY: "apiKey",
-  DEFAULT_PROFILE: "defaultProfile",
-  NOTIFICATIONS_ENABLED: "notificationsEnabled",
-  DEBUG_ENABLED: "debugEnabled",
-};
-
-const DEFAULT_SETTINGS = {
-  [STORAGE_KEYS.OVERSEERR_URL]: "",
-  [STORAGE_KEYS.API_KEY]: "",
-  [STORAGE_KEYS.DEFAULT_PROFILE]: "1",
-  [STORAGE_KEYS.NOTIFICATIONS_ENABLED]: true,
-  [STORAGE_KEYS.DEBUG_ENABLED]: false,
-};
-
-async function getStorage(key) {
-  try {
-    const result = await chrome.storage.sync.get(key);
-    if (!result || typeof result !== "object") {
-      return DEFAULT_SETTINGS[key];
-    }
-    return result[key] !== undefined ? result[key] : DEFAULT_SETTINGS[key];
-  } catch (error) {
-    console.error("Storage get error:", error);
-    return DEFAULT_SETTINGS[key];
-  }
-}
 
 async function getOverseerrUrl() {
   let url = await getStorage(STORAGE_KEYS.OVERSEERR_URL);

@@ -67,4 +67,4 @@ export async function saveSettings(settings) {
   }
 }
 
-export { STORAGE_KEYS };
+export { DEFAULT_SETTINGS, STORAGE_KEYS };
