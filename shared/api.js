@@ -66,9 +66,7 @@ async function apiRequest(endpoint, options = {}, timeoutMs = 10000) {
 
     if (error.name === "AbortError") {
       throw new Error(
-        `Connection timed out after ${
-          timeoutMs / 1000
-        } seconds. Please check your URL and network connection.`,
+        `Connection timed out after ${timeoutMs / 1000} seconds. Please check your URL and network connection.`,
       );
     }
 

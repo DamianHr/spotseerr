@@ -46,9 +46,7 @@ function verifyElements() {
 // Initialize popup
 document.addEventListener("DOMContentLoaded", async () => {
   if (!verifyElements()) {
-    console.error(
-      "Some DOM elements are missing. Please check the HTML structure.",
-    );
+    console.error("Some DOM elements are missing. Please check the HTML structure.");
   }
   addLog(chrome.i18n.getMessage("logPopupOpened"), "info");
   setupEventListeners();
@@ -328,12 +326,8 @@ function showVideoInfo(videoInfo) {
 async function showResults(results) {
   // Sort results by year (newest to oldest)
   const sortedResults = results.sort((a, b) => {
-    const yearA = a.releaseDate || a.firstAirDate
-      ? new Date(a.releaseDate || a.firstAirDate).getFullYear()
-      : 0;
-    const yearB = b.releaseDate || b.firstAirDate
-      ? new Date(b.releaseDate || b.firstAirDate).getFullYear()
-      : 0;
+    const yearA = a.releaseDate || a.firstAirDate ? new Date(a.releaseDate || a.firstAirDate).getFullYear() : 0;
+    const yearB = b.releaseDate || b.firstAirDate ? new Date(b.releaseDate || b.firstAirDate).getFullYear() : 0;
     return yearB - yearA; // Newest first
   });
 
@@ -418,12 +412,10 @@ function createResultElement(result) {
   item.dataset.type = result.mediaType;
 
   if (poster) {
-    const posterUrl = result.posterPath
-      ? `https://image.tmdb.org/t/p/w92${result.posterPath}`
-      : "../icons/icon48.png";
+    const posterUrl = result.posterPath ? `https://image.tmdb.org/t/p/w92${result.posterPath}` : "../icons/broken.png";
     poster.src = posterUrl;
     poster.onerror = () => {
-      poster.src = "../icons/icon48.png";
+      poster.src = "../icons/camera2.png";
     };
   }
 
@@ -593,10 +585,7 @@ async function getCurrentVideoInfo() {
         }
       } catch (error) {
         // If it's the last retry and the error is "Receiving end does not exist", try to inject the script
-        if (
-          attempt === MAX_RETRIES &&
-          error.message.includes("Receiving end does not exist")
-        ) {
+        if (attempt === MAX_RETRIES && error.message.includes("Receiving end does not exist")) {
           try {
             await chrome.scripting.executeScript({
               target: { tabId: tab.id },
@@ -615,10 +604,7 @@ async function getCurrentVideoInfo() {
               return response.data;
             }
           } catch (injectionError) {
-            addLog(
-              chrome.i18n.getMessage("logInjectionFailed", [injectionError.message]),
-              "error",
-            );
+            addLog(chrome.i18n.getMessage("logInjectionFailed", [injectionError.message]), "error");
           }
         }
 
@@ -645,9 +631,7 @@ async function searchOverseerr(query) {
 
     if (response && response.success) {
       const results = response.data.results || [];
-      const mediaResults = results.filter(
-        (r) => r.mediaType === "movie" || r.mediaType === "tv",
-      );
+      const mediaResults = results.filter((r) => r.mediaType === "movie" || r.mediaType === "tv");
       await showResults(mediaResults.slice(0, 5));
     } else {
       const errorMsg = response?.error || chrome.i18n.getMessage("noResponse");

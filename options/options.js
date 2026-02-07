@@ -139,9 +139,7 @@ async function testConnection() {
     // Test connection with 10 second timeout
     const response = await Promise.race([
       chrome.runtime.sendMessage({ action: "testConnection" }),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error(chrome.i18n.getMessage("requestTimeout"))), 10000)
-      ),
+      new Promise((_, reject) => setTimeout(() => reject(new Error(chrome.i18n.getMessage("requestTimeout"))), 10000)),
     ]);
 
     console.log("Connection test response:", response);
