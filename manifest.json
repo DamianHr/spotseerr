@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Overseerr YouTube Extension",
+  "name": "SpotSeerr",
   "version": "1.0.0",
   "description": "Request movies and TV shows from YouTube to your Overseerr instance",
   "permissions": [

@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "Extension Overseerr YouTube",
+    "message": "SpotSeerr",
     "description": "Extension name shown in browser title"
   },
   "extensionDescription": {
@@ -8,7 +8,7 @@
     "description": "Extension description"
   },
   "popupTitle": {
-    "message": "Extension Overseerr YouTube",
+    "message": "SpotSeerr",
     "description": "Popup page title"
   },
   "popupHeader": {
@@ -124,11 +124,11 @@
     "description": "Retry request button text"
   },
   "optionsTitle": {
-    "message": "Extension Overseerr YouTube - Paramètres",
+    "message": "SpotSeerr - Paramètres",
     "description": "Options page title"
   },
   "optionsHeader": {
-    "message": "Extension Overseerr YouTube",
+    "message": "SpotSeerr",
     "description": "Options page header"
   },
   "optionsSubtitle": {
@@ -216,7 +216,7 @@
     "description": "Error occurred message"
   },
   "footerVersion": {
-    "message": "Extension Overseerr YouTube v1.0.0",
+    "message": "SpotSeerr v1.0.0",
     "description": "Footer version text"
   },
   "overseerrDocsLink": {
@@ -278,7 +278,7 @@
     "description": "Notification title for failed request"
   },
   "notificationInstallTitle": {
-    "message": "Extension Overseerr YouTube installée",
+    "message": "SpotSeerr installée",
     "description": "Notification title on installation"
   },
   "notificationInstallMessage": {

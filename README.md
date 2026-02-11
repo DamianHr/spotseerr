@@ -1,4 +1,4 @@
-# Overseerr YouTube Extension
+# SpotSeerr
 
 A Chrome extension that detects movies and TV shows playing on YouTube and allows you to request them on your Overseerr instance with one click.
 
@@ -10,7 +10,7 @@ A Chrome extension that detects movies and TV shows playing on YouTube and allow
 - **One-Click Requests**: Request content directly from the popup
 - **Status Indicators**: Shows if content is already available or requested
 - **Notifications**: Get notified when requests succeed or fail
-- **Easy Configuration**: Simple settings page for Overseerr connection
+- **Easy Configuration**: Simple settings page for SpotSeerr connection
 
 ## Installation
 
@@ -20,7 +20,7 @@ A Chrome extension that detects movies and TV shows playing on YouTube and allow
 2. Open Chrome and navigate to `chrome://extensions/`
 3. Enable "Developer mode" in the top right
 4. Click "Load unpacked"
-5. Select the `overseerr-youtube-extension` folder
+5. Select the `spotseerr` folder
 6. The extension icon should appear in your toolbar
 
 ### First Setup
@@ -34,7 +34,7 @@ A Chrome extension that detects movies and TV shows playing on YouTube and allow
 ## Usage
 
 1. Navigate to any YouTube video (movie trailer, TV show clip, etc.)
-2. Click the Overseerr extension icon in your toolbar
+2. Click the SpotSeerr extension icon in your toolbar
 3. The extension will automatically detect the video title and search your Overseerr instance
 4. Click "Request" on any matching result to add it to your Overseerr requests
 
@@ -60,7 +60,7 @@ The extension automatically detects whether a video is for a movie or TV show ba
 ## File Structure
 
 ```
-overseerr-youtube-extension/
+spotseerr/
 ├── manifest.json              # Extension configuration
 ├── background.js              # Service worker for API calls
 ├── content.js                 # YouTube page interaction
