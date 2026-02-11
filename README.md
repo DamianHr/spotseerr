@@ -2,6 +2,8 @@
 
 A Chrome extension that detects movies and TV shows playing on YouTube and allows you to request them on your Overseerr instance with one click.
 
+> **Note:** This project was created with the assistance of LLM (Large Language Model) tools.
+
 ## Features
 
 - **Automatic Detection**: Extracts and cleans video titles from YouTube pages
