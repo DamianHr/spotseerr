@@ -88,18 +88,6 @@ spotseerr/
         └── messages.json    # Translations
 ```
 
-## API Integration
-
-The extension uses the Overseerr API v1 with the following endpoints:
-
-- `GET /api/v1/search` - Search for movies and TV shows
-- `GET /api/v1/movie/{id}` - Get movie details
-- `GET /api/v1/tv/{id}` - Get TV show details
-- `POST /api/v1/request` - Create a media request
-- `GET /api/v1/status` - Test connection
-
-Authentication is done via the `X-Api-Key` header.
-
 ## Troubleshooting
 
 ### Extension Not Working
@@ -155,7 +143,9 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 
 ## License
 
-MIT License - feel free to use and modify as needed.
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
+
+See [LICENSE](LICENSE) file for details.
 
 ## Support
 
