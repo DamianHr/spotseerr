@@ -2,6 +2,7 @@
 // Version: 2025.02.04 - Fixed 404 error with media details pre-fetch
 
 import { getStorage, STORAGE_KEYS } from "./shared/storage.js";
+import { cleanTitle, detectMediaType } from "./shared/parser.js";
 
 async function getOverseerrUrl() {
   let url = await getStorage(STORAGE_KEYS.OVERSEERR_URL);
@@ -128,86 +129,6 @@ async function createRequest(requestData) {
   }
 }
 
-// Utility functions
-function cleanTitle(title) {
-  if (!title || typeof title !== "string") {
-    return "";
-  }
-
-  const trailerKeywords = [
-    "official trailer",
-    "teaser trailer",
-    "trailer",
-    "teaser",
-    "clip",
-    "featurette",
-    "behind the scenes",
-    "bloopers",
-    "exclusive",
-    "first look",
-    "final trailer",
-    "red band trailer",
-    "green band trailer",
-    "international trailer",
-    "extended trailer",
-    "movie clip",
-    "scene",
-    "tv spot",
-    "super bowl spot",
-    "official",
-    "hd",
-    "4k",
-    "ultra hd",
-  ];
-
-  const yearPattern = /\(\d{4}\)|\[\d{4}\]|\b\d{4}\b/g;
-  const channelPattern = /[|\-–]\s*[^|\-–]+$/;
-  const resolutionPattern = /\b\d{3,4}p\b|\b4k\b|\bhd\b|\buhd\b/gi;
-
-  let cleaned = title.toLowerCase();
-
-  trailerKeywords.forEach((keyword) => {
-    const regex = new RegExp(`\\b${keyword}\\b`, "gi");
-    cleaned = cleaned.replace(regex, "");
-  });
-
-  cleaned = cleaned
-    .replace(yearPattern, "")
-    .replace(channelPattern, "")
-    .replace(resolutionPattern, "")
-    .replace(/[()[\]{}]/g, "")
-    .replace(/[|_]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  return cleaned;
-}
-
-function detectMediaType(title, description = "") {
-  const text = (title + " " + description).toLowerCase();
-  const tvKeywords = [
-    "season",
-    "episode",
-    "series",
-    "s\d+",
-    "e\d+",
-    "s\d+e\d+",
-    "tv series",
-    "miniseries",
-    "tv show",
-    "television",
-  ];
-
-  for (const keyword of tvKeywords) {
-    const regex = new RegExp(`\\b${keyword}\\b`, "i");
-    if (regex.test(text)) {
-      return "tv";
-    }
-  }
-
-  return "movie";
-}
-
 // Show browser notification
 function showNotification(title, message, type = "info") {
   getStorage(STORAGE_KEYS.NOTIFICATIONS_ENABLED).then((enabled) => {
@@ -230,67 +151,71 @@ function showNotification(title, message, type = "info") {
 }
 
 // Message handler
-chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-  const handleAsync = async () => {
-    try {
-      switch (request.action) {
-        case "getVideoInfo": {
-          return { success: true, data: request.data };
+if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
+  chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+    const handleAsync = async () => {
+      try {
+        switch (request.action) {
+          case "getVideoInfo": {
+            return { success: true, data: request.data };
+          }
+          case "searchMedia": {
+            const searchResults = await searchMedia(request.query);
+            return { success: true, data: searchResults };
+          }
+          case "getMediaDetails": {
+            const details = await getMediaDetails(request.mediaType, request.mediaId);
+            return { success: true, data: details };
+          }
+          case "createRequest": {
+            const requestResult = await createRequest(request.requestData);
+            return { success: true, data: requestResult };
+          }
+          case "checkAvailability": {
+            return { success: false, error: "Not implemented" };
+          }
+          case "showNotification": {
+            showNotification(request.title, request.message, request.type);
+            return { success: true };
+          }
+          case "cleanTitle": {
+            const cleaned = cleanTitle(request.title);
+            const mediaType = detectMediaType(request.title, request.description);
+            return { success: true, data: { cleaned, mediaType } };
+          }
+          default:
+            return { success: false, error: "Unknown action: " + request.action };
         }
-        case "searchMedia": {
-          const searchResults = await searchMedia(request.query);
-          return { success: true, data: searchResults };
-        }
-        case "getMediaDetails": {
-          const details = await getMediaDetails(request.mediaType, request.mediaId);
-          return { success: true, data: details };
-        }
-        case "createRequest": {
-          const requestResult = await createRequest(request.requestData);
-          return { success: true, data: requestResult };
-        }
-        case "checkAvailability": {
-          return { success: false, error: "Not implemented" };
-        }
-        case "showNotification": {
-          showNotification(request.title, request.message, request.type);
-          return { success: true };
-        }
-        case "cleanTitle": {
-          const cleaned = cleanTitle(request.title);
-          const mediaType = detectMediaType(request.title, request.description);
-          return { success: true, data: { cleaned, mediaType } };
-        }
-        default:
-          return { success: false, error: "Unknown action: " + request.action };
+      } catch (error) {
+        return { success: false, error: error.message };
       }
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
+    };
 
-  handleAsync()
-    .then((response) => {
-      sendResponse(response);
-    })
-    .catch((error) => {
-      sendResponse({ success: false, error: error.message });
-    });
+    handleAsync()
+      .then((response) => {
+        sendResponse(response);
+      })
+      .catch((error) => {
+        sendResponse({ success: false, error: error.message });
+      });
 
-  return true;
-});
+    return true;
+  });
 
-// Handle extension installation
-chrome.runtime.onInstalled.addListener((details) => {
-  if (details.reason === "install") {
-    chrome.runtime.openOptionsPage();
+  // Handle extension installation
+  if (chrome.runtime?.onInstalled) {
+    chrome.runtime.onInstalled.addListener((details) => {
+      if (details.reason === "install") {
+        chrome.runtime.openOptionsPage();
 
-    chrome.notifications.create({
-      type: "basic",
-      iconUrl: "icons/icon48.png",
-      title: chrome.i18n.getMessage("notificationInstallTitle"),
-      message: chrome.i18n.getMessage("notificationInstallMessage"),
-      priority: 2,
+        chrome.notifications.create({
+          type: "basic",
+          iconUrl: "icons/icon48.png",
+          title: chrome.i18n.getMessage("notificationInstallTitle"),
+          message: chrome.i18n.getMessage("notificationInstallMessage"),
+          priority: 2,
+        });
+      }
     });
   }
-});
+}
