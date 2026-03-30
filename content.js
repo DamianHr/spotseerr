@@ -14,7 +14,7 @@ let currentVideoInfo = {
 function extractVideoInfo() {
   try {
     // Get video title
-    const titleElement = document.querySelector("h1.ytd-watch-metadata") ||
+    const titleElement = document.querySelector("h1.yt-formatted-string") ||
       document.querySelector("h1.title") ||
       document.querySelector("h1");
 

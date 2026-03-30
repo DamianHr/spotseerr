@@ -3,104 +3,9 @@
 
 import { getStorage, STORAGE_KEYS } from "./shared/storage.js";
 import { cleanTitle, detectMediaType } from "./shared/parser.js";
+import { checkAvailability, createRequest as apiCreateRequest, getMediaDetails, searchMedia } from "./shared/api.js";
 
-async function getOverseerrUrl() {
-  let url = await getStorage(STORAGE_KEYS.OVERSEERR_URL);
-  url = url.trim();
-  if (url?.endsWith("/")) {
-    url = url.slice(0, -1);
-  }
-  return url;
-}
-
-async function getApiKey() {
-  return await getStorage(STORAGE_KEYS.API_KEY);
-}
-
-// API helper function
-async function apiRequest(endpoint, options = {}, timeoutMs = 10000) {
-  const url = await getOverseerrUrl();
-  const apiKey = await getApiKey();
-
-  if (!url) {
-    throw new Error("Overseerr URL not configured. Please check extension settings.");
-  }
-
-  if (!apiKey) {
-    throw new Error("API key not configured. Please check extension settings.");
-  }
-
-  const fullUrl = `${url}/api/v1${endpoint}`;
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-  const defaultOptions = {
-    headers: {
-      "X-Api-Key": apiKey,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    signal: controller.signal,
-  };
-
-  const fetchOptions = {
-    ...defaultOptions,
-    ...options,
-    headers: {
-      ...defaultOptions.headers,
-      ...options.headers,
-    },
-    signal: controller.signal,
-  };
-
-  try {
-    const response = await fetch(fullUrl, fetchOptions);
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    if (response.status === 204) {
-      return null;
-    }
-
-    return await response.json();
-  } catch (error) {
-    clearTimeout(timeoutId);
-
-    if (error.name === "AbortError") {
-      throw new Error(
-        `Connection timed out after ${timeoutMs / 1000} seconds. Please check your URL and network connection.`,
-      );
-    }
-
-    if (error.message.includes("Failed to fetch")) {
-      throw new Error("Cannot connect to Overseerr. Please check your URL and network connection.");
-    }
-
-    throw error;
-  }
-}
-
-// API functions
-async function searchMedia(query, page = 1) {
-  const encodedQuery = encodeURIComponent(query);
-  return await apiRequest(`/search?query=${encodedQuery}&page=${page}`);
-}
-
-async function getMediaDetails(mediaType, mediaId) {
-  if (mediaType === "movie") {
-    return await apiRequest(`/movie/${mediaId}`);
-  } else if (mediaType === "tv") {
-    return await apiRequest(`/tv/${mediaId}`);
-  } else {
-    throw new Error(`Unsupported media type: ${mediaType}`);
-  }
-}
-
+// Wrapper around createRequest that validates fields and pre-fetches media details
 async function createRequest(requestData) {
   // Validate required fields
   if (!requestData.mediaType || !requestData.mediaId) {
@@ -119,10 +24,7 @@ async function createRequest(requestData) {
     }
 
     // Then create the request
-    const response = await apiRequest("/request", {
-      method: "POST",
-      body: JSON.stringify(requestData),
-    });
+    const response = await apiCreateRequest(requestData);
     return { success: true, data: response };
   } catch (error) {
     return { success: false, error: error.message };
@@ -172,7 +74,8 @@ if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
             return { success: true, data: requestResult };
           }
           case "checkAvailability": {
-            return { success: false, error: "Not implemented" };
+            const availability = await checkAvailability(request.mediaId, request.mediaType);
+            return { success: true, data: availability };
           }
           case "showNotification": {
             showNotification(request.title, request.message, request.type);

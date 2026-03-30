@@ -31,7 +31,7 @@ async function apiRequest(endpoint, options = {}, timeoutMs = 10000) {
     headers: {
       "X-Api-Key": apiKey,
       "Content-Type": "application/json",
-      "Accept": "application/json",
+      Accept: "application/json",
     },
     signal: controller.signal,
   };
@@ -84,8 +84,11 @@ async function apiRequest(endpoint, options = {}, timeoutMs = 10000) {
  */
 async function getOverseerrUrl() {
   let url = await getStorage(STORAGE_KEYS.OVERSEERR_URL);
-  if (url && !url.endsWith("/")) {
-    url = url + "/";
+  if (url) {
+    url = url.trim();
+    if (url.endsWith("/")) {
+      url = url.slice(0, -1);
+    }
   }
   return url;
 }
@@ -110,12 +113,28 @@ export async function searchMedia(query, page = 1) {
 }
 
 /**
+ * Get media details by type and ID
+ * @param {string} mediaType - 'movie' or 'tv'
+ * @param {number} mediaId - TMDB ID
+ * @returns {Promise<Object>} Media details
+ */
+export async function getMediaDetails(mediaType, mediaId) {
+  if (mediaType === "movie") {
+    return await apiRequest(`/movie/${mediaId}`);
+  } else if (mediaType === "tv") {
+    return await apiRequest(`/tv/${mediaId}`);
+  } else {
+    throw new Error(`Unsupported media type: ${mediaType}`);
+  }
+}
+
+/**
  * Get movie details
  * @param {number} movieId - TMDB movie ID
  * @returns {Promise<Object>} Movie details
  */
 export async function getMovieDetails(movieId) {
-  return await apiRequest(`/movie/${movieId}`);
+  return await getMediaDetails("movie", movieId);
 }
 
 /**
@@ -124,7 +143,7 @@ export async function getMovieDetails(movieId) {
  * @returns {Promise<Object>} TV show details
  */
 export async function getTvDetails(tvId) {
-  return await apiRequest(`/tv/${tvId}`);
+  return await getMediaDetails("tv", tvId);
 }
 
 /**
