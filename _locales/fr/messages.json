@@ -35,6 +35,10 @@
     "message": "Titre de recherche :",
     "description": "Search input label"
   },
+  "searchTitlePlaceholder": {
+    "message": "Entrez un titre à rechercher",
+    "description": "Placeholder for search title input"
+  },
   "refreshVideoTooltip": {
     "message": "Actualiser la détection vidéo",
     "description": "Refresh video detection button tooltip"
@@ -122,6 +126,10 @@
   "retryRequestButton": {
     "message": "Réessayer",
     "description": "Retry request button text"
+  },
+  "requestFailed": {
+    "message": "Échec de la demande",
+    "description": "Generic error message when a media request fails"
   },
   "optionsTitle": {
     "message": "SpotSeerr - Paramètres",
@@ -270,8 +278,14 @@
     "description": "Notification title for successful request"
   },
   "notificationRequestSuccessMessage": {
-    "message": "\"$1\" a été demandé sur Overseerr",
-    "description": "Notification message for successful request"
+    "message": "\"$TITLE$\" a été demandé sur Overseerr",
+    "description": "Notification message for successful request",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Movie Title"
+      }
+    }
   },
   "notificationRequestFailed": {
     "message": "Échec de la demande",
@@ -302,12 +316,24 @@
     "description": "Log when no YouTube video is detected"
   },
   "logVideoDetected": {
-    "message": "Vidéo détectée : \"$1\"",
-    "description": "Log when video is detected"
+    "message": "Vidéo détectée : \"$TITLE$\"",
+    "description": "Log when video is detected",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Video Title"
+      }
+    }
   },
   "logVideoRedetected": {
-    "message": "Vidéo redétectée : \"$1\"",
-    "description": "Log when video is redetected"
+    "message": "Vidéo redétectée : \"$TITLE$\"",
+    "description": "Log when video is redetected",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Video Title"
+      }
+    }
   },
   "logNoVideoOnPage": {
     "message": "Aucune vidéo YouTube détectée sur la page actuelle",
@@ -322,32 +348,68 @@
     "description": "Log when searching"
   },
   "logSearchFailed": {
-    "message": "Échec de la recherche : $1",
-    "description": "Log when search fails"
+    "message": "Échec de la recherche : $ERROR$",
+    "description": "Log when search fails",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
   },
   "logSearchError": {
-    "message": "Erreur de recherche : $1",
-    "description": "Log when search error occurs"
+    "message": "Erreur de recherche : $ERROR$",
+    "description": "Log when search error occurs",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
   },
   "logNoResults": {
     "message": "Aucun résultat trouvé sur Overseerr",
     "description": "Log when no results found"
   },
   "logResultsFound": {
-    "message": "$1 résultats trouvés",
-    "description": "Log when results are found"
+    "message": "$COUNT$ résultats trouvés",
+    "description": "Log when results are found",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "logCheckingStatus": {
-    "message": "Vérification de l'état de $1 résultats",
-    "description": "Log when checking status of results"
+    "message": "Vérification de l'état de $COUNT$ résultats",
+    "description": "Log when checking status of results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "logRequestSuccess": {
-    "message": "Demande créée avec succès : \"$1\"",
-    "description": "Log when request is created successfully"
+    "message": "Demande créée avec succès : \"$TITLE$\"",
+    "description": "Log when request is created successfully",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Movie Title"
+      }
+    }
   },
   "logRequestFailed": {
-    "message": "Échec de la demande : $1",
-    "description": "Log when request fails"
+    "message": "Échec de la demande : $ERROR$",
+    "description": "Log when request fails",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
   },
   "logNotOnYoutube": {
     "message": "Pas sur une page de lecture YouTube",
@@ -358,36 +420,66 @@
     "description": "Log when content script responds successfully"
   },
   "logContentScriptError": {
-    "message": "Erreur du script de contenu : $1",
-    "description": "Log when content script error"
+    "message": "Erreur du script de contenu : $ERROR$",
+    "description": "Log when content script error",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
   },
   "logContentScriptInjected": {
     "message": "Script de contenu injecté après réponse",
     "description": "Log when content script is injected after response"
   },
   "logInjectionFailed": {
-    "message": "Échec de l'injection du script de contenu : $1",
-    "description": "Log when content script injection fails"
+    "message": "Échec de l'injection du script de contenu : $ERROR$",
+    "description": "Log when content script injection fails",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
   },
   "logsCleared": {
     "message": "Journaux effacés",
     "description": "Log message when logs are cleared"
   },
   "logInitializationError": {
-    "message": "Erreur d'initialisation : $1",
-    "description": "Log when initialization error occurs"
+    "message": "Erreur d'initialisation : $ERROR$",
+    "description": "Log when initialization error occurs",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
   },
   "logErrorButtonNull": {
     "message": "Erreur : l'élément du bouton est null",
     "description": "Log when button element is null"
   },
   "logErrorRefreshing": {
-    "message": "Erreur lors de l'actualisation : $1",
-    "description": "Log when error refreshing video"
+    "message": "Erreur lors de l'actualisation : $ERROR$",
+    "description": "Log when error refreshing video",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
   },
   "logErrorGettingVideo": {
-    "message": "Erreur lors de l'obtention des informations vidéo : $1",
-    "description": "Log when error getting video info"
+    "message": "Erreur lors de l'obtention des informations vidéo : $ERROR$",
+    "description": "Log when error getting video info",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
   },
   "errorLoadSettings": {
     "message": "Échec du chargement des paramètres. Veuillez réessayer.",

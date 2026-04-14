@@ -307,7 +307,9 @@ function showVideoInfo(videoInfo) {
     elements.videoTitle.textContent = truncateText(videoInfo.title, 80);
   }
   if (elements.mediaType) {
-    elements.mediaType.textContent = videoInfo.mediaType === "tv" ? "TV Show" : "Movie";
+    elements.mediaType.textContent = videoInfo.mediaType === "tv"
+      ? chrome.i18n.getMessage("mediaTypeTv")
+      : chrome.i18n.getMessage("mediaTypeMovie");
   }
   if (elements.searchTitleInput) {
     elements.searchTitleInput.value = videoInfo.cleanedTitle;

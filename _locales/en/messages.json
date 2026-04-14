@@ -36,6 +36,10 @@
     "message": "Search title:",
     "description": "Label for search input"
   },
+  "searchTitlePlaceholder": {
+    "message": "Enter a title to search",
+    "description": "Placeholder for search title input"
+  },
   "refreshVideoTooltip": {
     "message": "Refresh video detection",
     "description": "Tooltip for refresh button"
@@ -124,6 +128,10 @@
   "retryRequestButton": {
     "message": "Retry",
     "description": "Retry request button text"
+  },
+  "requestFailed": {
+    "message": "Request failed",
+    "description": "Generic error message when a media request fails"
   },
 
   "optionsTitle": {
