@@ -1,11 +1,23 @@
 # Project Commands
 
-This project uses **Deno** for linting, formatting, and i18n validation. It also has a legacy npm configuration.
+This project uses **Vite + CRXJS** for bundling (Node/npm, build-only). **Deno** is the primary dev runtime: testing, type-checking, linting, formatting, and i18n validation.
 
 ## Available Tasks
 
 ```bash
-# Lint the codebase
+# Build extension (Vite + CRXJS bundles to dist/) — Node/npm
+npm run build
+
+# Watch mode for development — Node/npm
+npm run dev
+
+# Run tests (Deno)
+deno task test
+
+# Type-check all source (Deno)
+deno task typecheck
+
+# Lint the codebase (Deno)
 deno task lint
 
 # Lint and auto-fix issues
@@ -22,27 +34,14 @@ deno task check
 
 # Validate and sync translations
 deno task i18n
-
-# Run unit tests
-deno test tests/
 ```
 
-## Direct Deno Commands
-
-```bash
-# Run any script directly
-deno run --allow-read --allow-write script.ts
-
-# Check types
-deno check **/*.ts **/*.js
-
-# REPL
-deno
-```
+> **Runtime split**: npm is used **only** for the extension build (`npm run build`/`npm run dev`), because `@crxjs/vite-plugin` requires Node/Vite. Everything else (tests, typecheck, lint, fmt, i18n) runs under Deno.
 
 ## Prerequisites
 
 - Install Deno: https://deno.land/#installation
+- Install Node.js: https://nodejs.org/
 - For icon conversion: ImageMagick (optional)
 
 **Ubuntu/Debian:**
@@ -59,59 +58,53 @@ brew install imagemagick
 
 ```
 .
-├── content.js              # Content script (runs on YouTube)
-├── background.js           # Service worker
-├── manifest.json           # Extension manifest
-├── package.json            # Legacy npm config (ESLint only)
-├── deno.json              # Deno configuration
-├── convert-icons.sh        # Icon conversion script
-├── tests/                 # Unit tests
-│   └── background.test.js  # Tests for title cleaning & media detection
-├── popup/                  # Popup UI
-│   ├── popup.html
-│   ├── popup.js
-│   └── popup.css
-├── options/                # Options page
-│   ├── options.html
-│   ├── options.js
-│   └── options.css
-├── shared/                 # Shared utilities
-│   ├── api.js              # Overseerr API client
-│   ├── i18n.js             # Internationalization helper
-│   ├── storage.js           # Chrome storage wrapper
-│   └── utils.js            # Utility functions
-├── icons/                  # Extension icons
-│   ├── icon*.svg           # SVG source icons
-│   ├── icon*.png           # PNG generated icons
-│   ├── camera.svg          # Camera/film icon
-│   └── broken-image.svg    # Broken image placeholder
-└── _locales/               # Translations
-    └── {lang}/messages.json
+├── src/
+│   ├── shared/              # Shared modules
+│   │   ├── index.ts         # Re-exports all shared
+│   │   ├── siteConfig.ts    # Site config (SINGLE SOURCE OF TRUTH)
+│   │   ├── api.ts          # Overseerr API client
+│   │   ├── storage.ts      # Chrome storage wrapper
+│   │   ├── parser.ts      # Title/media parsing
+│   │   └── utils.ts        # Utility functions
+│   ├── content/content.ts  # Content script
+│   ├── background/background.ts  # Service worker
+│   ├── popup/             # Popup UI
+│   ├── options/           # Options page
+│   ├── tests/             # Deno tests
+│   ├── icons/             # Extension icons
+│   ├── _locales/          # Translations
+│   └── manifest.json      # Extension manifest
+├── public/               # Empty (static assets in src/)
+├── dist/                  # Build output
+├── vite.config.ts
+├── tsconfig.json
+├── package.json
+├── deno.json              # Deno linting/i18n config
+└── convert-icons.sh      # Icon conversion script
 ```
 
-## Notes
+## Build Output
 
-- Extension code runs in the browser, not in Deno
-- Deno is used for linting, formatting, and i18n validation
-- Chrome types are available via `// @ts-types` comments
-- No `node_modules` - Deno caches dependencies automatically
+CRXJS bundles `src/**/*.ts` → `dist/**/*.js`. The manifest in `dist/` references bundled `.js` files.
 
 ## Translation Workflow
 
 1. Add i18n keys to HTML with `data-i18n` attributes
 2. Run `deno task i18n` to sync keys between locales
-3. Update translations in `_locales/{lang}/messages.json`
+3. Update translations in `src/_locales/{lang}/messages.json`
 
-## Deno vs npm
+## TypeScript Aliases
 
-| npm                  | Deno                         |
-| -------------------- | ---------------------------- |
-| `npm install`         | No install step needed        |
-| `npm run lint`       | `deno task lint`             |
-| `npm run lint:fix`   | `deno task lint:fix`         |
-| `npm run fmt`        | `deno task fmt`              |
-| `package.json`       | `deno.json`                  |
-| `node_modules/`      | Cached in `~/.cache/deno/`   |
-| ESLint               | Built-in `deno lint`         |
-| Prettier             | Built-in `deno fmt`          |
-| i18n scripts         | `deno task i18n`             |
+Configured in vite.config.ts and tsconfig.json:
+
+- `@shared/*` → `./src/shared/*`
+
+## Tech Stack
+
+| Tool | Purpose |
+|------|---------|
+| Vite + @crxjs/vite-plugin | Bundling |
+| TypeScript | Type safety |
+| Deno | Tests, linting, formatting, i18n |
+| Deno | Linting, formatting, i18n |
+| @types/chrome | Chrome types |

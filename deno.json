@@ -1,18 +1,22 @@
 {
   "name": "spotseerr",
   "version": "1.0.0",
-  "exports": "./content.js",
+  "exports": "./src/content/content.ts",
+  "nodeModulesDir": "auto",
+  "unstable": ["sloppy-imports"],
   "tasks": {
+    "test": "deno test src/tests/",
+    "typecheck": "deno check src/**/*.ts vite.config.ts",
     "lint": "deno lint",
     "lint:fix": "deno lint --fix",
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "check": "deno task lint && deno task fmt:check",
-    "test": "deno test tests/",
     "i18n": "deno run --allow-read --allow-write check-i18n.ts"
   },
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "es2022", "deno.ns"],
+    "types": ["npm:@types/chrome"],
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -20,10 +24,11 @@
     "noUnusedParameters": true
   },
   "lint": {
-    "include": ["**/*.js", "**/*.ts"],
-    "exclude": ["node_modules", "deno.lock"],
+    "include": ["src/**/*.ts", "deno.json", "check-i18n.ts"],
+    "exclude": ["node_modules", "dist/", "deno.lock"],
     "rules": {
       "tags": ["recommended"],
+      "exclude": ["no-sloppy-imports"],
       "include": [
         "ban-unused-ignore",
         "camelcase",
@@ -48,16 +53,13 @@
     }
   },
   "fmt": {
-    "include": ["**/*.js", "**/*.ts"],
-    "exclude": ["node_modules", "deno.lock"],
+    "include": ["src/**/*.ts", "deno.json", "check-i18n.ts"],
+    "exclude": ["node_modules", "dist/", "deno.lock"],
     "useTabs": false,
     "lineWidth": 120,
     "indentWidth": 2,
     "semiColons": true,
     "singleQuote": false,
     "proseWrap": "preserve"
-  },
-  "test": {
-    "include": ["tests/**/*.test.js", "tests/**/*.test.ts"]
   }
 }

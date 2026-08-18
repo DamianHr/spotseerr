@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "SpotSeerr",
+  "version": "1.0.0",
+  "description": "Request movies and TV shows from YouTube, Netflix, IMDb, and Dailymotion to your Overseerr instance",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "notifications",
+    "scripting",
+    "alarms"
+  ],
+  "host_permissions": [
+    "http://*/",
+    "https://*/",
+    "*://*.netflix.com/*",
+    "*://*.imdb.com/*",
+    "*://*.dailymotion.com/*"
+  ],
+  "background": {
+    "service_worker": "./src/background/background.ts",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Request on Overseerr"
+  },
+  "options_page": "src/options/options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.youtube.com/*",
+        "https://*.netflix.com/*",
+        "https://*.imdb.com/*",
+        "https://*.dailymotion.com/*"
+      ],
+      "js": ["src/content/content.ts"],
+      "run_at": "document_start"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "default_locale": "en"
+}

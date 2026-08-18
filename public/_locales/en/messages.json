@@ -28,9 +28,9 @@
     "message": "Open Settings",
     "description": "Button to open settings page"
   },
-  "notOnYoutube": {
-    "message": "Navigate to a YouTube video to get started",
-    "description": "Message when not on YouTube"
+  "notSupportedSite": {
+    "message": "Navigate to a supported media site to get started",
+    "description": "Message when not on a supported site"
   },
   "searchTitleLabel": {
     "message": "Search title:",
@@ -421,6 +421,52 @@
   "logNotOnYoutube": {
     "message": "Not on YouTube watch page",
     "description": "Log message when not on YouTube"
+  },
+  "logSiteNotSupported": {
+    "message": "Site not supported",
+    "description": "Log message when site not in config"
+  },
+  "logNoUrl": {
+    "message": "No URL available",
+    "description": "Log message when no URL"
+  },
+  "logNoMedia": {
+    "message": "No media detected",
+    "description": "Log message when no media found"
+  },
+  "logMediaDetected": {
+    "message": "Media detected: \"$TITLE$\"",
+    "description": "Log message when media detected",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Media Title"
+      }
+    }
+  },
+  "logMediaRedetected": {
+    "message": "Media re-detected: \"$TITLE$\"",
+    "description": "Log message when media re-detected",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Media Title"
+      }
+    }
+  },
+  "logNoMediaOnPage": {
+    "message": "No media detected on current page",
+    "description": "Log message when no media on page"
+  },
+  "logErrorGettingMedia": {
+    "message": "Error getting media info: $ERROR$",
+    "description": "Log error when getting media info",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
   },
   "logContentScriptSuccess": {
     "message": "Content script responded successfully",

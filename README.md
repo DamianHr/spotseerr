@@ -22,7 +22,7 @@ A Chrome extension that detects movies and TV shows playing on YouTube and allow
 2. Open Chrome and navigate to `chrome://extensions/`
 3. Enable "Developer mode" in the top right
 4. Click "Load unpacked"
-5. Select the `spotseerr` folder
+5. Select the `dist` folder
 6. The extension icon should appear in your toolbar
 
 ### First Setup
@@ -63,29 +63,32 @@ The extension automatically detects whether a video is for a movie or TV show ba
 
 ```
 spotseerr/
-├── manifest.json              # Extension configuration
-├── background.js              # Service worker for API calls
-├── content.js                 # YouTube page interaction
-├── popup/
-│   ├── popup.html           # Extension popup UI
-│   ├── popup.css            # Popup styles
-│   └── popup.js             # Popup logic
-├── options/
-│   ├── options.html         # Settings page
-│   ├── options.css          # Settings styles
-│   └── options.js           # Settings logic
-├── shared/
-│   ├── api.js               # Overseerr API client
-│   ├── storage.js           # Chrome storage wrapper
-│   └── utils.js             # Utility functions
-├── icons/
-│   ├── icon16.png
-│   ├── icon32.png
-│   ├── icon48.png
-│   └── icon128.png
-└── _locales/
-    └── en/
-        └── messages.json    # Translations
+├── src/
+│   ├── shared/              # Shared TypeScript modules
+│   │   ├── api.ts          # Overseerr API client
+│   │   ├── parser.ts       # Title/media parsing
+│   │   ├── siteConfig.ts   # Site configuration
+│   │   ├── storage.ts      # Chrome storage wrapper
+│   │   └── utils.ts        # Utility functions
+│   ├── content/content.ts   # Content script (YouTube)
+│   ├── background/background.ts  # Service worker
+│   ├── popup/              # Popup UI
+│   │   ├── popup.ts
+│   │   ├── popup.html
+│   │   └── popup.css
+│   ├── options/            # Options page
+│   │   ├── options.ts
+│   │   ├── options.html
+│   │   └── options.css
+│   ├── tests/              # Unit tests
+│   ├── icons/              # Extension icons
+│   ├── _locales/           # Translations
+│   └── manifest.json       # Extension manifest
+├── dist/                   # Built extension (load this in Chrome)
+├── vite.config.ts          # Vite configuration
+├── tsconfig.json           # TypeScript configuration
+├── package.json            # npm configuration
+└── deno.json              # Deno linting/i18n config
 ```
 
 ## Troubleshooting
@@ -96,6 +99,7 @@ spotseerr/
 2. **Test Connection**: Use the "Test Connection" button in settings
 3. **Check Permissions**: Make sure the extension has permission to access youtube.com
 4. **Reload Extension**: Go to `chrome://extensions/` and click the reload button
+5. **Rebuild**: Run `npm run build` to regenerate the `dist/` folder
 
 ### "Cannot connect to Overseerr" Error
 
@@ -125,17 +129,34 @@ spotseerr/
 ## Development
 
 ### Prerequisites
+
 - Chrome or Edge browser
-- Basic knowledge of JavaScript, HTML, and CSS
+- Node.js: https://nodejs.org/
+- Deno: https://deno.land/#installation
+- Basic knowledge of TypeScript, HTML, and CSS
 
 ### Local Development
-1. Make changes to the source files
+
+1. Run `npm run dev` to start watch mode
 2. Go to `chrome://extensions/`
 3. Click the reload button on the extension
 4. Test your changes
 
 ### Building for Production
-No build step is required for this extension. It's designed to work directly as source files.
+
+```bash
+# Install dependencies
+npm install
+
+# Build the extension
+npm run build
+
+# Run tests (Deno)
+deno task test
+
+# Lint and format
+deno task check
+```
 
 ## Contributing
 

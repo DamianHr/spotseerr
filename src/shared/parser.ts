@@ -1,58 +1,69 @@
 // Shared utility functions for title cleaning and media detection
 
-export function cleanTitle(title) {
+const TRAILER_KEYWORDS = [
+  "official trailer",
+  "teaser trailer",
+  "trailer",
+  "teaser",
+  "clip",
+  "featurette",
+  "behind the scenes",
+  "bloopers",
+  "exclusive",
+  "first look",
+  "final trailer",
+  "red band trailer",
+  "green band trailer",
+  "international trailer",
+  "extended trailer",
+  "movie clip",
+  "movieclip",
+  "scene",
+  "tv spot",
+  "super bowl spot",
+  "official",
+  "hd",
+  "4k",
+  "ultra hd",
+  "title reveal",
+  "concept",
+  "fan-made",
+  "fan made",
+  "miniseries",
+  "comic-con",
+  "sdcc",
+  "big game spot",
+  "imax",
+];
+
+const TV_KEYWORDS = [
+  "season",
+  "episode",
+  "series",
+  "s\\d+",
+  "e\\d+",
+  "s\\d+e\\d+",
+  "tv series",
+  "miniseries",
+  "tv show",
+  "television",
+];
+
+export function cleanTitle(title: unknown): string {
   if (!title || typeof title !== "string") {
     return "";
   }
 
   let cleaned = title.toLowerCase();
 
-  // Split on pipe and keep only the left part (the actual title)
   const pipeIndex = cleaned.indexOf("|");
   if (pipeIndex !== -1) {
     cleaned = cleaned.substring(0, pipeIndex);
   }
 
-  const trailerKeywords = [
-    "official trailer",
-    "teaser trailer",
-    "trailer",
-    "teaser",
-    "clip",
-    "featurette",
-    "behind the scenes",
-    "bloopers",
-    "exclusive",
-    "first look",
-    "final trailer",
-    "red band trailer",
-    "green band trailer",
-    "international trailer",
-    "extended trailer",
-    "movie clip",
-    "movieclip",
-    "scene",
-    "tv spot",
-    "super bowl spot",
-    "official",
-    "hd",
-    "4k",
-    "ultra hd",
-    "title reveal",
-    "concept",
-    "fan-made",
-    "fan made",
-    "miniseries",
-    "comic-con",
-    "sdcc",
-    "big game spot",
-    "imax",
-  ];
-
-  // Find earliest trailer keyword and cut there (everything after is metadata)
   let earliestIndex = cleaned.length;
   let cutAtKeyword = false;
-  for (const keyword of trailerKeywords) {
+  for (const keyword of TRAILER_KEYWORDS) {
     const index = cleaned.indexOf(keyword);
     if (index !== -1 && index < earliestIndex) {
       earliestIndex = index;
@@ -81,22 +92,10 @@ export function cleanTitle(title) {
   return cleaned;
 }
 
-export function detectMediaType(title, description = "") {
-  const text = (title + " " + description).toLowerCase();
-  const tvKeywords = [
-    "season",
-    "episode",
-    "series",
-    "s\\d+",
-    "e\\d+",
-    "s\\d+e\\d+",
-    "tv series",
-    "miniseries",
-    "tv show",
-    "television",
-  ];
+export function detectMediaType(title: unknown, description: unknown = ""): "movie" | "tv" {
+  const text = (String(title) + " " + String(description)).toLowerCase();
 
-  for (const keyword of tvKeywords) {
+  for (const keyword of TV_KEYWORDS) {
     const regex = new RegExp(`\\b${keyword}\\b`, "i");
     if (regex.test(text)) {
       return "tv";

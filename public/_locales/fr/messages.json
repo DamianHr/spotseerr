@@ -27,9 +27,9 @@
     "message": "Ouvrir les paramètres",
     "description": "Button to open settings"
   },
-  "notOnYoutube": {
-    "message": "Naviguez vers une vidéo YouTube pour commencer",
-    "description": "Message when not on YouTube"
+  "notSupportedSite": {
+    "message": "Naviguez vers un site média pris en charge pour commencer",
+    "description": "Message when not on a supported site"
   },
   "searchTitleLabel": {
     "message": "Titre de recherche :",
@@ -411,9 +411,55 @@
       }
     }
   },
-  "logNotOnYoutube": {
-    "message": "Pas sur une page de lecture YouTube",
-    "description": "Log when not on YouTube watch page"
+"logNotOnYoutube": {
+    "message": "Pas sur la page de visionnage YouTube",
+    "description": "Log message when not on YouTube"
+  },
+  "logSiteNotSupported": {
+    "message": "Site non supporté",
+    "description": "Log message when site not in config"
+  },
+  "logNoUrl": {
+    "message": "Aucune URL disponible",
+    "description": "Log message when no URL"
+  },
+  "logNoMedia": {
+    "message": "Aucun média détecté",
+    "description": "Log message when no media found"
+  },
+  "logMediaDetected": {
+    "message": "Média détecté : « $TITLE$ »",
+    "description": "Log message when media detected",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Media Title"
+      }
+    }
+  },
+  "logMediaRedetected": {
+    "message": "Média re-détecté : « $TITLE$ »",
+    "description": "Log message when media re-detected",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Media Title"
+      }
+    }
+  },
+  "logNoMediaOnPage": {
+    "message": "Aucun média détecté sur la page actuelle",
+    "description": "Log message when no media on page"
+  },
+  "logErrorGettingMedia": {
+    "message": "Erreur lors de la récupération des infos média : $ERROR$",
+    "description": "Log error when getting media info",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
   },
   "logContentScriptSuccess": {
     "message": "Le script de contenu a répondu avec succès",

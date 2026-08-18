@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-console
 //
 const BASE_LOCALE = "en";
-const LOCALES_DIR = "./_locales";
+const LOCALES_DIR = "./public/_locales";
 
 async function checkTranslations(): Promise<void> {
   const baseContent = await Deno.readTextFile(

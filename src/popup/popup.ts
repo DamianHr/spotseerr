@@ -1,7 +1,9 @@
 // Popup script for handling UI interactions with auto-search and debug logging
 
-import { getAllSettings, STORAGE_KEYS } from "../shared/storage.js";
-import { truncateText } from "../shared/utils.js";
+import { getAllSettings, STORAGE_KEYS } from "../shared/storage";
+import { getSiteByDomain } from "../shared/siteConfig";
+import { truncateText } from "../shared/utils";
+import { initI18n } from "../shared/localize";
 
 // DOM Elements
 const elements = {
@@ -14,9 +16,9 @@ const elements = {
   videoTitle: document.getElementById("videoTitle"),
   mediaType: document.getElementById("mediaType"),
   parsingStatus: document.getElementById("parsingStatus"),
-  searchTitleInput: document.getElementById("searchTitleInput"),
-  searchBtn: document.getElementById("searchBtn"),
-  refreshVideoBtn: document.getElementById("refreshVideoBtn"),
+  searchTitleInput: document.getElementById("searchTitleInput") as HTMLInputElement | null,
+  searchBtn: document.getElementById("searchBtn") as HTMLButtonElement | null,
+  refreshVideoBtn: document.getElementById("refreshVideoBtn") as HTMLButtonElement | null,
   resultsList: document.getElementById("resultsList"),
   errorMessage: document.getElementById("errorMessage"),
   settingsBtn: document.getElementById("settingsBtn"),
@@ -25,58 +27,54 @@ const elements = {
   logSection: document.getElementById("logSection"),
   logContainer: document.getElementById("logContainer"),
   clearLogsBtn: document.getElementById("clearLogsBtn"),
-  resultTemplate: document.getElementById("resultTemplate"),
+  resultTemplate: document.getElementById("resultTemplate") as HTMLTemplateElement | null,
 };
 
-function verifyElements() {
-  const missing = [];
+interface MediaInfo {
+  title: string;
+  cleanedTitle: string;
+  mediaType: string;
+  url?: string;
+  site?: string;
+}
+
+function verifyElements(): boolean {
+  const missing: string[] = [];
   for (const [key, value] of Object.entries(elements)) {
     if (!value) {
       missing.push(key);
     }
   }
-  if (missing.length > 0) {
-    return false;
-  }
   return missing.length === 0;
 }
 
-// Initialize popup
 document.addEventListener("DOMContentLoaded", async () => {
+  initI18n();
+
   verifyElements();
   addLog(chrome.i18n.getMessage("logPopupOpened"), "info");
   setupEventListeners();
   await initialize();
 });
 
-function setupEventListeners() {
-  elements.settingsBtn.addEventListener("click", openSettings);
-  elements.openSettingsBtn.addEventListener("click", openSettings);
-  elements.retryBtn.addEventListener("click", initialize);
-  elements.clearLogsBtn.addEventListener("click", clearLogs);
+function setupEventListeners(): void {
+  elements.settingsBtn?.addEventListener("click", openSettings);
+  elements.openSettingsBtn?.addEventListener("click", openSettings);
+  elements.retryBtn?.addEventListener("click", initialize);
+  elements.clearLogsBtn?.addEventListener("click", clearLogs);
 
-  // Manual search button
-  if (elements.searchBtn) {
-    elements.searchBtn.addEventListener("click", handleManualSearch);
-  }
+  elements.searchBtn?.addEventListener("click", handleManualSearch);
 
-  // Allow re-search when user edits the title and presses Enter
-  if (elements.searchTitleInput) {
-    elements.searchTitleInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        handleManualSearch();
-      }
-    });
-  }
+  elements.searchTitleInput?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      handleManualSearch();
+    }
+  });
 
-  // Refresh video detection button
-  if (elements.refreshVideoBtn) {
-    elements.refreshVideoBtn.addEventListener("click", refreshVideoDetection);
-  }
+  elements.refreshVideoBtn?.addEventListener("click", refreshMediaDetection);
 }
 
-// Logging function
-function addLog(message, type = "info") {
+function addLog(message: string, type: "info" | "success" | "error" | "warn" = "info"): void {
   const timestamp = new Date().toLocaleTimeString("en-US", {
     hour12: false,
     hour: "2-digit",
@@ -88,38 +86,37 @@ function addLog(message, type = "info") {
   const logEntry = document.createElement("div");
   logEntry.className = "log-entry";
 
-  const typeClass = {
+  const typeClass: Record<string, string> = {
     info: "log-info",
     success: "log-success",
     error: "log-error",
     warn: "log-warn",
-  }[type] || "log-info";
+  };
 
   logEntry.innerHTML = `
     <span class="log-time">[${timestamp}]</span>
-    <span class="${typeClass}">${escapeHtml(message)}</span>
+    <span class="${typeClass[type] || "log-info"}">${escapeHtml(message)}</span>
   `;
 
-  elements.logContainer.appendChild(logEntry);
-  elements.logContainer.scrollTop = elements.logContainer.scrollHeight;
+  elements.logContainer?.appendChild(logEntry);
+  elements.logContainer!.scrollTop = elements.logContainer!.scrollHeight;
 }
 
-function clearLogs() {
-  elements.logContainer.innerHTML = "";
+function clearLogs(): void {
+  elements.logContainer!.innerHTML = "";
   addLog(chrome.i18n.getMessage("logsCleared"), "info");
 }
 
-function escapeHtml(text) {
+function escapeHtml(text: string): string {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }
 
-async function initialize() {
+async function initialize(): Promise<void> {
   hideAllStates();
 
   try {
-    // Check if settings are configured
     const settings = await getAllSettings();
 
     if (!settings) {
@@ -128,7 +125,6 @@ async function initialize() {
       return;
     }
 
-    // Check debug setting and show/hide log section
     const debugEnabled = settings[STORAGE_KEYS.DEBUG_ENABLED] === true;
     if (elements.logSection) {
       if (debugEnabled) {
@@ -147,36 +143,33 @@ async function initialize() {
       return;
     }
 
-    // Get current tab info
-    const videoInfo = await getCurrentVideoInfo();
+    const mediaInfo = await getCurrentMediaInfo();
 
-    if (!videoInfo || !videoInfo.title) {
-      addLog(chrome.i18n.getMessage("logNoVideo"), "warn");
-      showNotYoutube();
+    if (!mediaInfo || !mediaInfo.title) {
+      addLog(chrome.i18n.getMessage("logNoMedia"), "warn");
+      showNotSupported();
       return;
     }
 
-    addLog(chrome.i18n.getMessage("logVideoDetected", [videoInfo.title]), "success");
+    addLog(chrome.i18n.getMessage("logMediaDetected", [mediaInfo.title]), "success");
 
-    showVideoInfo(videoInfo);
+    showMediaInfo(mediaInfo);
 
-    // Auto-trigger search
     await handleManualSearch();
   } catch (error) {
-    addLog(chrome.i18n.getMessage("logInitializationError", [error.message]), "error");
-    showError(error.message);
+    addLog(chrome.i18n.getMessage("logInitializationError", [(error as Error).message]), "error");
+    showError((error as Error).message);
   }
 }
 
-async function handleManualSearch() {
-  const searchTitle = elements.searchTitleInput ? elements.searchTitleInput.value.trim() : "";
+async function handleManualSearch(): Promise<void> {
+  const searchTitle = elements.searchTitleInput?.value.trim() || "";
 
   if (!searchTitle) {
     addLog(chrome.i18n.getMessage("logEnterTitle"), "error");
     return;
   }
 
-  // Update button state
   if (elements.searchBtn) {
     elements.searchBtn.disabled = true;
     elements.searchBtn.innerHTML = `
@@ -185,13 +178,11 @@ async function handleManualSearch() {
     `;
   }
 
-  // Update status
   if (elements.parsingStatus) {
     elements.parsingStatus.textContent = chrome.i18n.getMessage("statusParsing");
     elements.parsingStatus.className = "parsing-status parsing";
   }
 
-  // Clear previous results
   if (elements.resultsSection) elements.resultsSection.classList.add("hidden");
   if (elements.noResultsState) elements.noResultsState.classList.add("hidden");
   if (elements.resultsList) elements.resultsList.innerHTML = "";
@@ -199,21 +190,18 @@ async function handleManualSearch() {
   try {
     await searchOverseerr(searchTitle);
 
-    // Update status to complete
     if (elements.parsingStatus) {
       elements.parsingStatus.textContent = chrome.i18n.getMessage("statusParsingComplete");
       elements.parsingStatus.className = "parsing-status complete";
     }
   } catch (error) {
-    addLog(chrome.i18n.getMessage("logSearchFailed", [error.message]), "error");
+    addLog(chrome.i18n.getMessage("logSearchFailed", [(error as Error).message]), "error");
 
-    // Update status to error
     if (elements.parsingStatus) {
       elements.parsingStatus.textContent = chrome.i18n.getMessage("statusParsingFailed");
       elements.parsingStatus.className = "parsing-status error";
     }
   } finally {
-    // Restore button
     if (elements.searchBtn) {
       elements.searchBtn.disabled = false;
       elements.searchBtn.innerHTML = `
@@ -227,8 +215,7 @@ async function handleManualSearch() {
   }
 }
 
-async function refreshVideoDetection() {
-  // Update button state
+async function refreshMediaDetection(): Promise<void> {
   if (elements.refreshVideoBtn) {
     elements.refreshVideoBtn.disabled = true;
     elements.refreshVideoBtn.innerHTML = `
@@ -238,45 +225,37 @@ async function refreshVideoDetection() {
   }
 
   try {
-    // Clear previous results
-    if (elements.resultsSection) {
-      elements.resultsSection.classList.add("hidden");
-    }
-    if (elements.noResultsState) {
-      elements.noResultsState.classList.add("hidden");
-    }
+    if (elements.resultsSection) elements.resultsSection.classList.add("hidden");
+    if (elements.noResultsState) elements.noResultsState.classList.add("hidden");
     if (elements.resultsList) elements.resultsList.innerHTML = "";
     if (elements.parsingStatus) {
       elements.parsingStatus.textContent = "";
       elements.parsingStatus.className = "parsing-status";
     }
 
-    // Get fresh video info from content script
-    const videoInfo = await getCurrentVideoInfo();
+    const mediaInfo = await getCurrentMediaInfo();
 
-    if (!videoInfo || !videoInfo.title) {
-      addLog(chrome.i18n.getMessage("logNoVideoOnPage"), "warn");
+    if (!mediaInfo || !mediaInfo.title) {
+      addLog(chrome.i18n.getMessage("logNoMediaOnPage"), "warn");
       return;
     }
 
-    addLog(chrome.i18n.getMessage("logVideoRedetected", [videoInfo.title]), "success");
+    addLog(chrome.i18n.getMessage("logMediaRedetected", [mediaInfo.title]), "success");
 
-    // Update UI with new video info
     if (elements.videoTitle) {
-      elements.videoTitle.textContent = truncateText(videoInfo.title, 80);
+      elements.videoTitle.textContent = truncateText(mediaInfo.title, 80);
     }
     if (elements.mediaType) {
-      elements.mediaType.textContent = videoInfo.mediaType === "tv"
+      elements.mediaType.textContent = mediaInfo.mediaType === "tv"
         ? chrome.i18n.getMessage("mediaTypeTv")
         : chrome.i18n.getMessage("mediaTypeMovie");
     }
     if (elements.searchTitleInput) {
-      elements.searchTitleInput.value = videoInfo.cleanedTitle;
+      elements.searchTitleInput.value = mediaInfo.cleanedTitle;
     }
   } catch (error) {
-    addLog(chrome.i18n.getMessage("logErrorRefreshing", [error.message]), "error");
+    addLog(chrome.i18n.getMessage("logErrorRefreshing", [(error as Error).message]), "error");
   } finally {
-    // Restore button
     if (elements.refreshVideoBtn) {
       elements.refreshVideoBtn.disabled = false;
       elements.refreshVideoBtn.innerHTML = `
@@ -290,57 +269,54 @@ async function refreshVideoDetection() {
   }
 }
 
-function showConfigWarning() {
+function showConfigWarning(): void {
   hideAllStates();
-  if (elements.configWarning) elements.configWarning.classList.remove("hidden");
+  elements.configWarning?.classList.remove("hidden");
 }
 
-function showNotYoutube() {
+function showNotSupported(): void {
   hideAllStates();
-  if (elements.notYoutubeState) {
-    elements.notYoutubeState.classList.remove("hidden");
-  }
+  elements.notYoutubeState?.classList.remove("hidden");
 }
 
-function showVideoInfo(videoInfo) {
+function showMediaInfo(mediaInfo: { title: string; cleanedTitle: string; mediaType: string }): void {
   if (elements.videoTitle) {
-    elements.videoTitle.textContent = truncateText(videoInfo.title, 80);
+    elements.videoTitle.textContent = truncateText(mediaInfo.title, 80);
   }
   if (elements.mediaType) {
-    elements.mediaType.textContent = videoInfo.mediaType === "tv"
+    elements.mediaType.textContent = mediaInfo.mediaType === "tv"
       ? chrome.i18n.getMessage("mediaTypeTv")
       : chrome.i18n.getMessage("mediaTypeMovie");
   }
   if (elements.searchTitleInput) {
-    elements.searchTitleInput.value = videoInfo.cleanedTitle;
+    elements.searchTitleInput.value = mediaInfo.cleanedTitle;
   }
-  if (elements.videoSection) elements.videoSection.classList.remove("hidden");
+  elements.videoSection?.classList.remove("hidden");
 }
 
-async function showResults(results) {
-  // Sort results by year (newest to oldest)
-  const sortedResults = results.sort((a, b) => {
-    const yearA = a.releaseDate || a.firstAirDate ? new Date(a.releaseDate || a.firstAirDate).getFullYear() : 0;
-    const yearB = b.releaseDate || b.firstAirDate ? new Date(b.releaseDate || b.firstAirDate).getFullYear() : 0;
-    return yearB - yearA; // Newest first
+async function showResults(results: unknown[]): Promise<void> {
+  const sortedResults = (results as {
+    releaseDate?: string;
+    firstAirDate?: string;
+    mediaType: string;
+    id: number;
+  }[]).sort((a, b) => {
+    const yearA = a.releaseDate || a.firstAirDate ? new Date(a.releaseDate || a.firstAirDate || "").getFullYear() : 0;
+    const yearB = b.releaseDate || b.firstAirDate ? new Date(b.releaseDate || b.firstAirDate || "").getFullYear() : 0;
+    return yearB - yearA;
   });
 
   if (elements.resultsList) elements.resultsList.innerHTML = "";
 
   if (sortedResults.length === 0) {
     addLog(chrome.i18n.getMessage("logNoResults"), "warn");
-    if (elements.resultsSection) {
-      elements.resultsSection.classList.add("hidden");
-    }
-    if (elements.noResultsState) {
-      elements.noResultsState.classList.remove("hidden");
-    }
+    if (elements.resultsSection) elements.resultsSection.classList.add("hidden");
+    if (elements.noResultsState) elements.noResultsState.classList.remove("hidden");
     return;
   }
 
   addLog(chrome.i18n.getMessage("logCheckingStatus", [sortedResults.length.toString()]), "info");
 
-  // Fetch detailed information for each result to get correct request status
   const resultsWithDetails = await Promise.all(
     sortedResults.map(async (result) => {
       try {
@@ -348,17 +324,13 @@ async function showResults(results) {
           action: "getMediaDetails",
           mediaType: result.mediaType,
           mediaId: result.id,
-        });
+        }) as { success: boolean; data?: unknown };
 
         if (response && response.success && response.data) {
-          // Merge the detailed info with the search result
-          return {
-            ...result,
-            mediaInfo: response.data.mediaInfo || result.mediaInfo,
-          };
+          return { ...result, mediaInfo: (response.data as { mediaInfo?: unknown }).mediaInfo || result };
         }
         return result;
-      } catch (_error) {
+      } catch {
         return result;
       }
     }),
@@ -376,30 +348,33 @@ async function showResults(results) {
     }
   });
 
-  if (elements.resultsSection) {
-    elements.resultsSection.classList.remove("hidden");
-  }
+  if (elements.resultsSection) elements.resultsSection.classList.remove("hidden");
   if (elements.noResultsState) elements.noResultsState.classList.add("hidden");
 }
 
-function createResultElement(result) {
-  if (!elements.resultTemplate) {
-    return null;
-  }
+function createResultElement(result: {
+  mediaType: string;
+  id: number;
+  posterPath?: string;
+  title?: string;
+  name?: string;
+  releaseDate?: string;
+  firstAirDate?: string;
+  mediaInfo?: unknown;
+}): HTMLElement | null {
+  if (!elements.resultTemplate) return null;
 
-  const clone = elements.resultTemplate.content.cloneNode(true);
-  const item = clone.querySelector(".result-item");
-  const poster = clone.querySelector(".result-poster");
-  const title = clone.querySelector(".result-title");
-  const year = clone.querySelector(".result-year");
-  const status = clone.querySelector(".result-status");
-  const requestBtn = clone.querySelector(".btn-request");
+  const clone = elements.resultTemplate.content.cloneNode(true) as DocumentFragment;
+  const item = clone.querySelector<HTMLElement>(".result-item");
+  const poster = clone.querySelector<HTMLImageElement>(".result-poster");
+  const title = clone.querySelector<HTMLElement>(".result-title");
+  const year = clone.querySelector<HTMLElement>(".result-year");
+  const status = clone.querySelector<HTMLElement>(".result-status");
+  const requestBtn = clone.querySelector<HTMLButtonElement>(".btn-request");
 
-  if (!item) {
-    return null;
-  }
+  if (!item) return null;
 
-  item.dataset.id = result.id;
+  item.dataset.id = String(result.id);
   item.dataset.type = result.mediaType;
 
   if (poster) {
@@ -410,63 +385,63 @@ function createResultElement(result) {
     };
   }
 
-  if (title) title.textContent = result.title || result.name;
+  if (title) title.textContent = result.title || result.name || "";
   if (year) {
-    year.textContent = result.releaseDate || result.firstAirDate
-      ? new Date(result.releaseDate || result.firstAirDate).getFullYear()
-      : chrome.i18n.getMessage("yearNotAvailable");
+    const dateStr = result.releaseDate || result.firstAirDate;
+    year.textContent = dateStr ? String(new Date(dateStr).getFullYear()) : chrome.i18n.getMessage("yearNotAvailable");
   }
 
   if (status && requestBtn) {
-    updateResultStatus(result, status, requestBtn);
+    updateResultStatus(result.mediaInfo, status, requestBtn);
   }
 
-  if (requestBtn) {
-    requestBtn.addEventListener("click", () => handleRequest(result, requestBtn));
-  }
+  requestBtn?.addEventListener("click", () => handleRequest(result, requestBtn));
 
   return item;
 }
 
-function updateResultStatus(result, statusElement, buttonElement) {
-  if (!statusElement || !buttonElement) {
+function updateResultStatus(
+  mediaInfo: unknown,
+  statusElement: HTMLElement,
+  buttonElement: HTMLButtonElement,
+): void {
+  if (!mediaInfo) {
+    statusElement.textContent = chrome.i18n.getMessage("statusNotRequested");
+    buttonElement.textContent = chrome.i18n.getMessage("requestButton");
     return;
   }
 
-  const mediaInfo = result.mediaInfo;
+  const info = mediaInfo as { status: number; requests?: unknown[] };
+  const hasRequests = info.requests && info.requests.length > 0;
 
-  if (mediaInfo) {
-    const status = mediaInfo.status;
-    const hasRequests = mediaInfo.requests && mediaInfo.requests.length > 0;
-
-    if (status >= 4) {
-      statusElement.textContent = chrome.i18n.getMessage("statusAvailable");
-      statusElement.classList.add("available");
-      buttonElement.textContent = chrome.i18n.getMessage("statusAvailable");
-      buttonElement.classList.add("available");
-      buttonElement.disabled = true;
-    } else if (hasRequests) {
-      statusElement.textContent = chrome.i18n.getMessage("statusRequested");
-      statusElement.classList.add("requested");
-      buttonElement.textContent = chrome.i18n.getMessage("statusRequested");
-      buttonElement.classList.add("requested");
-      buttonElement.disabled = true;
-    } else {
-      statusElement.textContent = chrome.i18n.getMessage("statusNotRequested");
-      buttonElement.textContent = chrome.i18n.getMessage("requestButton");
-    }
+  if (info.status >= 4) {
+    statusElement.textContent = chrome.i18n.getMessage("statusAvailable");
+    statusElement.classList.add("available");
+    buttonElement.textContent = chrome.i18n.getMessage("statusAvailable");
+    buttonElement.classList.add("available");
+    buttonElement.disabled = true;
+  } else if (hasRequests) {
+    statusElement.textContent = chrome.i18n.getMessage("statusRequested");
+    statusElement.classList.add("requested");
+    buttonElement.textContent = chrome.i18n.getMessage("statusRequested");
+    buttonElement.classList.add("requested");
+    buttonElement.disabled = true;
   } else {
     statusElement.textContent = chrome.i18n.getMessage("statusNotRequested");
     buttonElement.textContent = chrome.i18n.getMessage("requestButton");
   }
 }
 
-async function handleRequest(result, button) {
-  if (!button) {
-    addLog(chrome.i18n.getMessage("logErrorButtonNull"), "error");
-    return;
-  }
-
+async function handleRequest(
+  result: {
+    mediaType: string;
+    id: number;
+    title?: string;
+    name?: string;
+    externalIds?: { tvdbId?: number };
+  },
+  button: HTMLButtonElement,
+): Promise<void> {
   const btnText = button.querySelector(".btn-text");
   const btnLoader = button.querySelector(".btn-loader");
 
@@ -474,11 +449,10 @@ async function handleRequest(result, button) {
   if (btnLoader) btnLoader.classList.remove("hidden");
   button.disabled = true;
 
-  const title = result.title || result.name;
+  const title = result.title || result.name || "";
 
   try {
-    // Build request data
-    const requestData = {
+    const requestData: { mediaType: string; mediaId: number; tvdbId?: number } = {
       mediaType: result.mediaType,
       mediaId: result.id,
     };
@@ -490,14 +464,13 @@ async function handleRequest(result, button) {
     const response = await chrome.runtime.sendMessage({
       action: "createRequest",
       requestData,
-    });
+    }) as { success: boolean; error?: string };
 
     if (response.success) {
       button.textContent = chrome.i18n.getMessage("statusRequested");
       button.classList.add("success");
       button.disabled = true;
 
-      // Update the status element to show "Requested"
       const resultItem = button.closest(".result-item");
       if (resultItem) {
         const statusElement = resultItem.querySelector(".result-status");
@@ -520,7 +493,7 @@ async function handleRequest(result, button) {
       throw new Error(response.error || chrome.i18n.getMessage("requestFailed"));
     }
   } catch (error) {
-    addLog(chrome.i18n.getMessage("logRequestFailed", [error.message]), "error");
+    addLog(chrome.i18n.getMessage("logRequestFailed", [(error as Error).message]), "error");
     button.disabled = false;
     const btnText = button.querySelector(".btn-text");
     const btnLoader = button.querySelector(".btn-loader");
@@ -533,7 +506,7 @@ async function handleRequest(result, button) {
     await chrome.runtime.sendMessage({
       action: "showNotification",
       title: chrome.i18n.getMessage("notificationRequestFailed"),
-      message: error.message,
+      message: (error as Error).message,
       type: "error",
     });
   } finally {
@@ -542,7 +515,7 @@ async function handleRequest(result, button) {
   }
 }
 
-async function getCurrentVideoInfo() {
+async function getCurrentMediaInfo(): Promise<MediaInfo | null> {
   const MAX_RETRIES = 3;
   const RETRY_DELAY = 500;
 
@@ -552,21 +525,27 @@ async function getCurrentVideoInfo() {
       currentWindow: true,
     });
 
-    if (!tab.url || !tab.url.includes("youtube.com/watch")) {
-      addLog(chrome.i18n.getMessage("logNotOnYoutube"), "warn");
+    if (!tab.url) {
+      addLog(chrome.i18n.getMessage("logNoUrl"), "warn");
       return null;
     }
 
-    // Try to get video info with retries
+    const url = new URL(tab.url);
+    const site = getSiteByDomain(url.hostname);
+    if (!site) {
+      addLog(chrome.i18n.getMessage("logSiteNotSupported"), "warn");
+      return null;
+    }
+
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const response = await chrome.tabs.sendMessage(tab.id, {
-          action: "getCurrentVideo",
-        });
+        const response = await chrome.tabs.sendMessage(tab.id!, {
+          action: "getCurrentMedia",
+        }) as { success: boolean; data?: MediaInfo; error?: string };
 
         if (response && response.success) {
           addLog(chrome.i18n.getMessage("logContentScriptSuccess"), "success");
-          return response.data;
+          return response.data ?? null;
         } else {
           addLog(
             chrome.i18n.getMessage("logContentScriptError", [response?.error || "No response"]),
@@ -574,31 +553,28 @@ async function getCurrentVideoInfo() {
           );
         }
       } catch (error) {
-        // If it's the last retry and the error is "Receiving end does not exist", try to inject the script
-        if (attempt === MAX_RETRIES && error.message.includes("Receiving end does not exist")) {
+        if (attempt === MAX_RETRIES && (error as Error).message.includes("Receiving end does not exist")) {
           try {
             await chrome.scripting.executeScript({
-              target: { tabId: tab.id },
-              files: ["content.js"],
+              target: { tabId: tab.id! },
+              files: ["content/content.js"],
             });
 
-            // Wait a bit for the script to initialize
             await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
 
-            const response = await chrome.tabs.sendMessage(tab.id, {
-              action: "getCurrentVideo",
-            });
+            const response = await chrome.tabs.sendMessage(tab.id!, {
+              action: "getCurrentMedia",
+            }) as { success: boolean; data?: MediaInfo };
 
             if (response && response.success) {
               addLog(chrome.i18n.getMessage("logContentScriptInjected"), "success");
-              return response.data;
+              return response.data ?? null;
             }
           } catch (injectionError) {
-            addLog(chrome.i18n.getMessage("logInjectionFailed", [injectionError.message]), "error");
+            addLog(chrome.i18n.getMessage("logInjectionFailed", [(injectionError as Error).message]), "error");
           }
         }
 
-        // Wait before next retry
         if (attempt < MAX_RETRIES) {
           await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
         }
@@ -607,21 +583,23 @@ async function getCurrentVideoInfo() {
 
     return null;
   } catch (error) {
-    addLog(chrome.i18n.getMessage("logErrorGettingVideo", [error.message]), "error");
+    addLog(chrome.i18n.getMessage("logErrorGettingMedia", [(error as Error).message]), "error");
     return null;
   }
 }
 
-async function searchOverseerr(query) {
+async function searchOverseerr(query: string): Promise<void> {
   try {
     const response = await chrome.runtime.sendMessage({
       action: "searchMedia",
-      query: query,
-    });
+      query,
+    }) as { success: boolean; data?: { results?: unknown[] }; error?: string };
 
     if (response && response.success) {
-      const results = response.data.results || [];
-      const mediaResults = results.filter((r) => r.mediaType === "movie" || r.mediaType === "tv");
+      const results = (response.data as { results?: unknown[] }).results || [];
+      const mediaResults = (results as { mediaType: string }[]).filter(
+        (r) => r.mediaType === "movie" || r.mediaType === "tv",
+      );
       await showResults(mediaResults.slice(0, 5));
     } else {
       const errorMsg = response?.error || chrome.i18n.getMessage("noResponse");
@@ -629,28 +607,26 @@ async function searchOverseerr(query) {
       throw new Error(errorMsg);
     }
   } catch (error) {
-    addLog(chrome.i18n.getMessage("logSearchFailed", [error.message]), "error");
+    addLog(chrome.i18n.getMessage("logSearchFailed", [(error as Error).message]), "error");
     throw error;
   }
 }
 
-function showError(message) {
+function showError(message: string): void {
   hideAllStates();
   if (elements.errorMessage) elements.errorMessage.textContent = message;
   if (elements.errorState) elements.errorState.classList.remove("hidden");
 }
 
-function hideAllStates() {
+function hideAllStates(): void {
   if (elements.configWarning) elements.configWarning.classList.add("hidden");
-  if (elements.notYoutubeState) {
-    elements.notYoutubeState.classList.add("hidden");
-  }
+  if (elements.notYoutubeState) elements.notYoutubeState.classList.add("hidden");
   if (elements.videoSection) elements.videoSection.classList.add("hidden");
   if (elements.resultsSection) elements.resultsSection.classList.add("hidden");
   if (elements.noResultsState) elements.noResultsState.classList.add("hidden");
   if (elements.errorState) elements.errorState.classList.add("hidden");
 }
 
-function openSettings() {
+function openSettings(): void {
   chrome.runtime.openOptionsPage();
 }
