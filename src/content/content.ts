@@ -1,6 +1,7 @@
 // Content script for media page detection (multi-site)
 
 import { getSiteByDomain, type SiteConfig } from "../shared/siteConfig";
+import { getExtractor, type StructuredMedia } from "./sites";
 
 interface MediaInfo {
   title: string;
@@ -33,7 +34,7 @@ function detectSite(): SiteConfig | null {
   return getSiteByDomain(hostname);
 }
 
-function extractMediaInfo(): { title: string; url: string; site: string } | null {
+function extractMediaInfo(): { title: string; url: string; site: string; structured: StructuredMedia | null } | null {
   const site = detectSite();
   if (!site) {
     return null;
@@ -41,11 +42,14 @@ function extractMediaInfo(): { title: string; url: string; site: string } | null
 
   try {
     const title = globalThis.document.title;
+    const extractor = getExtractor(site.id);
+    const structured = extractor ? extractor() : null;
 
     return {
       title,
       url: globalThis.location.href,
       site: site.id,
+      structured,
     };
   } catch {
     return null;
@@ -53,9 +57,9 @@ function extractMediaInfo(): { title: string; url: string; site: string } | null
 }
 
 async function processMediaInfo(): Promise<void> {
-  const mediaInfo = extractMediaInfo();
+  const extracted = extractMediaInfo();
 
-  if (!mediaInfo || !mediaInfo.title) {
+  if (!extracted || !extracted.title) {
     currentMediaInfo = {
       title: "",
       description: "",
@@ -67,7 +71,19 @@ async function processMediaInfo(): Promise<void> {
     return;
   }
 
+  const { structured, ...mediaInfo } = extracted;
+
   try {
+    if (structured) {
+      currentMediaInfo = {
+        ...mediaInfo,
+        description: "",
+        cleanedTitle: structured.cleanedTitle,
+        mediaType: structured.mediaType,
+      };
+      return;
+    }
+
     const response = await chrome.runtime.sendMessage({
       action: "cleanTitle",
       title: mediaInfo.title,
