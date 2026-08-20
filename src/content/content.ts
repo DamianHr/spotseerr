@@ -1,7 +1,7 @@
 // Content script for media page detection (multi-site)
 
 import { getSiteByDomain, type SiteConfig } from "../shared/siteConfig";
-import { getExtractor, type StructuredMedia } from "./sites";
+import { getChannelExtractor, getExtractor, type StructuredMedia } from "./sites";
 
 interface MediaInfo {
   title: string;
@@ -10,6 +10,7 @@ interface MediaInfo {
   mediaType: string;
   url: string;
   site: string | null;
+  channel: string | null;
 }
 
 interface ChromeMessageResponse {
@@ -27,6 +28,7 @@ let currentMediaInfo: MediaInfo = {
   mediaType: "movie",
   url: "",
   site: null,
+  channel: null,
 };
 
 function detectSite(): SiteConfig | null {
@@ -34,7 +36,13 @@ function detectSite(): SiteConfig | null {
   return getSiteByDomain(hostname);
 }
 
-function extractMediaInfo(): { title: string; url: string; site: string; structured: StructuredMedia | null } | null {
+function extractMediaInfo(): {
+  title: string;
+  url: string;
+  site: string;
+  structured: StructuredMedia | null;
+  channel: string | null;
+} | null {
   const site = detectSite();
   if (!site) {
     return null;
@@ -44,12 +52,15 @@ function extractMediaInfo(): { title: string; url: string; site: string; structu
     const title = globalThis.document.title;
     const extractor = getExtractor(site.id);
     const structured = extractor ? extractor() : null;
+    const channelExtractor = getChannelExtractor(site.id);
+    const channel = channelExtractor ? channelExtractor() : null;
 
     return {
       title,
       url: globalThis.location.href,
       site: site.id,
       structured,
+      channel,
     };
   } catch {
     return null;
@@ -67,6 +78,7 @@ async function processMediaInfo(): Promise<void> {
       mediaType: "movie",
       url: globalThis.location.href,
       site: null,
+      channel: null,
     };
     return;
   }
