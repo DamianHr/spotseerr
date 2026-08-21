@@ -1,7 +1,7 @@
 // Content script for media page detection (multi-site)
 
 import { getSiteByDomain, type SiteConfig } from "../shared/siteConfig";
-import { getChannelExtractor, getExtractor, type StructuredMedia } from "./sites";
+import { getChannelExtractor, getExtractor, getTitleExtractor, type StructuredMedia } from "./sites";
 
 interface MediaInfo {
   title: string;
@@ -49,7 +49,9 @@ function extractMediaInfo(): {
   }
 
   try {
-    const title = globalThis.document.title;
+    const titleExtractor = getTitleExtractor(site.id);
+    const structuredTitle = titleExtractor ? titleExtractor() : null;
+    const title = structuredTitle ?? globalThis.document.title;
     const extractor = getExtractor(site.id);
     const structured = extractor ? extractor() : null;
     const channelExtractor = getChannelExtractor(site.id);

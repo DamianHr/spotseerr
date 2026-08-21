@@ -13,7 +13,7 @@ export const SITES_CONFIG: Record<string, SiteConfig> = {
     id: "youtube",
     name: "YouTube",
     domains: ["youtube.com", "youtu.be"],
-    titleSelector: "h1.yt-formatted-string, h1.title, h1",
+    titleSelector: "h1.ytd-watch-metadata, h1.ytdMiniplayerInfoBarTitle, h1",
     enabled: true,
   },
   netflix: {
