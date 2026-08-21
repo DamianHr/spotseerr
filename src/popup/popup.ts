@@ -1,7 +1,7 @@
 // Popup script for handling UI interactions with auto-search and debug logging
 
 import { getAllSettings, STORAGE_KEYS } from "../shared/storage";
-import { getSiteByDomain } from "../shared/siteConfig";
+import { getSiteByDomain, isMediaPage } from "../shared/siteConfig";
 import { truncateText } from "../shared/utils";
 import { initI18n } from "../shared/localize";
 
@@ -207,8 +207,10 @@ async function initialize(): Promise<void> {
     const mediaInfo = await getCurrentMediaInfo();
 
     if (!mediaInfo || !mediaInfo.title) {
-      addLog(chrome.i18n.getMessage("logNoMedia"), "warn");
-      showNotSupported();
+      // No media detected (unsupported domain OR supported homepage): still
+      // let the user search manually instead of dead-ending.
+      addLog(chrome.i18n.getMessage("logNoMedia"), "info");
+      showManualSearchOnly();
       return;
     }
 
@@ -314,9 +316,22 @@ function showConfigWarning(): void {
   elements.configWarning?.classList.remove("hidden");
 }
 
-function showNotSupported(): void {
+// Reveal the search UI with no detected media: empty title, default media
+// type, focused input, no auto-search. Used on unsupported domains and on
+// supported-site homepages so manual search is always available.
+function showManualSearchOnly(): void {
   hideAllStates();
-  elements.notYoutubeState?.classList.remove("hidden");
+  if (elements.videoTitle) {
+    elements.videoTitle.textContent = chrome.i18n.getMessage("noMediaDetectedTitle");
+  }
+  if (elements.mediaType) {
+    setMediaTypeToggle("movie");
+  }
+  if (elements.searchTitleInput) {
+    elements.searchTitleInput.value = "";
+  }
+  elements.videoSection?.classList.remove("hidden");
+  elements.searchTitleInput?.focus();
 }
 
 function showMediaInfo(mediaInfo: { title: string; cleanedTitle: string; mediaType: string }): void {
@@ -554,6 +569,13 @@ async function getCurrentMediaInfo(): Promise<MediaInfo | null> {
     const site = getSiteByDomain(url.hostname);
     if (!site) {
       addLog(chrome.i18n.getMessage("logSiteNotSupported"), "warn");
+      return null;
+    }
+
+    // Supported domain, but not a media page (e.g. YouTube/IMDb homepage):
+    // skip auto-detection silently so the user can still search manually.
+    if (!isMediaPage(url.pathname, site)) {
+      addLog(chrome.i18n.getMessage("logNotMediaPage"), "info");
       return null;
     }
 

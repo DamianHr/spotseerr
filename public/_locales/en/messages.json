@@ -422,6 +422,14 @@
     "message": "No URL available",
     "description": "Log message when no URL"
   },
+  "logNotMediaPage": {
+    "message": "Not a media page, manual search only",
+    "description": "Log message when on a supported domain but not a media page"
+  },
+  "noMediaDetectedTitle": {
+    "message": "Search for a movie or show",
+    "description": "Heading shown when no media is auto-detected and only manual search is available"
+  },
   "logNoMedia": {
     "message": "No media detected",
     "description": "Log message when no media found"

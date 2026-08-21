@@ -1,6 +1,6 @@
 // Content script for media page detection (multi-site)
 
-import { getSiteByDomain, type SiteConfig } from "../shared/siteConfig";
+import { getSiteByDomain, isMediaPage, type SiteConfig } from "../shared/siteConfig";
 import { getExtractor, getTitleExtractor, type StructuredMedia } from "./sites";
 
 interface MediaInfo {
@@ -42,6 +42,12 @@ function extractMediaInfo(): {
 } | null {
   const site = detectSite();
   if (!site) {
+    return null;
+  }
+
+  // Only extract on actual media pages; homepages / listings must not
+  // auto-detect (they produce garbage from document.title).
+  if (!isMediaPage(globalThis.location.pathname, site)) {
     return null;
   }
 
