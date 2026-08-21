@@ -35,6 +35,9 @@ keys.pem
 coverage/
 .nyc_output/
 
+# Scratch / planning
+/temp
+
 # Logs
 *.log
 npm-debug.log*

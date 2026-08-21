@@ -40,4 +40,4 @@ async function checkTranslations(): Promise<void> {
   if (hasError) Deno.exit(1);
 }
 
-checkTranslations();
+void checkTranslations();

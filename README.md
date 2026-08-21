@@ -1,18 +1,18 @@
 # SpotSeerr
 
-A Chrome extension that detects movies and TV shows playing on YouTube and allows you to request them on your Overseerr instance with one click.
+A Chrome extension that detects movies and TV shows on supported sites (YouTube and IMDb) and allows you to request them on your Overseerr instance with one click.
 
 > **Note:** This project was created with the assistance of LLM (Large Language Model) tools.
 
 ## Features
 
-- **Automatic Detection**: Extracts and cleans video titles from YouTube pages
+- **Automatic Detection**: Extracts and cleans video titles from supported sites (YouTube, IMDb)
 - **Smart Title Cleaning**: Removes trailer keywords, years, and promotional text
 - **Media Type Detection**: Automatically identifies movies vs TV shows
 - **One-Click Requests**: Request content directly from the popup
 - **Status Indicators**: Shows if content is already available or requested
 - **Notifications**: Get notified when requests succeed or fail
-- **Easy Configuration**: Simple settings page for SpotSeerr connection
+- **Easy Configuration**: Simple settings page for Overseerr connection
 
 ## Installation
 
@@ -35,12 +35,15 @@ A Chrome extension that detects movies and TV shows playing on YouTube and allow
 
 ## Usage
 
-1. Navigate to any YouTube video (movie trailer, TV show clip, etc.)
+1. Navigate to a supported site (a YouTube video or an IMDb title page)
 2. Click the SpotSeerr extension icon in your toolbar
-3. The extension will automatically detect the video title and search your Overseerr instance
+3. The extension will automatically detect the title and search your Overseerr instance
 4. Click "Request" on any matching result to add it to your Overseerr requests
 
 ## How It Works
+
+### Supported Sites
+Supported sites are config-driven via `src/shared/siteConfig.ts` (single source of truth), which defines each site's domains and title selector. Currently enabled: **YouTube** and **IMDb**.
 
 ### Title Cleaning
 The extension automatically cleans YouTube video titles by removing:
@@ -65,12 +68,14 @@ The extension automatically detects whether a video is for a movie or TV show ba
 spotseerr/
 ├── src/
 │   ├── shared/              # Shared TypeScript modules
+│   │   ├── index.ts        # Re-exports all shared modules
 │   │   ├── api.ts          # Overseerr API client
 │   │   ├── parser.ts       # Title/media parsing
-│   │   ├── siteConfig.ts   # Site configuration
+│   │   ├── siteConfig.ts   # Site configuration (single source of truth)
 │   │   ├── storage.ts      # Chrome storage wrapper
+│   │   ├── localize.ts     # i18n helper
 │   │   └── utils.ts        # Utility functions
-│   ├── content/content.ts   # Content script (YouTube)
+│   ├── content/content.ts   # Content script
 │   ├── background/background.ts  # Service worker
 │   ├── popup/              # Popup UI
 │   │   ├── popup.ts
@@ -80,15 +85,17 @@ spotseerr/
 │   │   ├── options.ts
 │   │   ├── options.html
 │   │   └── options.css
-│   ├── tests/              # Unit tests
+│   ├── tests/              # Deno unit tests
 │   ├── icons/              # Extension icons
-│   ├── _locales/           # Translations
 │   └── manifest.json       # Extension manifest
+├── public/
+│   └── _locales/           # Translations
 ├── dist/                   # Built extension (load this in Chrome)
+├── check-i18n.ts           # Deno i18n validation/sync script
 ├── vite.config.ts          # Vite configuration
 ├── tsconfig.json           # TypeScript configuration
-├── package.json            # npm configuration
-└── deno.json              # Deno linting/i18n config
+├── package.json            # npm configuration (build only)
+└── deno.json              # Deno tasks: test, lint, fmt, i18n
 ```
 
 ## Troubleshooting
@@ -97,7 +104,7 @@ spotseerr/
 
 1. **Check Settings**: Ensure your Overseerr URL and API key are correct
 2. **Test Connection**: Use the "Test Connection" button in settings
-3. **Check Permissions**: Make sure the extension has permission to access youtube.com
+3. **Check Permissions**: Make sure the extension has permission to access the supported site (youtube.com, imdb.com)
 4. **Reload Extension**: Go to `chrome://extensions/` and click the reload button
 5. **Rebuild**: Run `npm run build` to regenerate the `dist/` folder
 
@@ -115,9 +122,9 @@ spotseerr/
 
 ### Title Not Detected
 
-- YouTube's page structure changes occasionally
+- Sites change their page structure occasionally; title selectors are defined per-site in `src/shared/siteConfig.ts`
 - Try refreshing the page
-- Ensure you're on a standard YouTube video page (not Shorts or Live)
+- On YouTube, ensure you're on a standard video page (not Shorts or Live)
 
 ## Privacy & Security
 
