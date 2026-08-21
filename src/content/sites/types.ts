@@ -11,11 +11,6 @@ export interface StructuredMedia {
 // media info when available, or null to fall back to title cleaning.
 export type SiteExtractor = () => StructuredMedia | null;
 
-// A channel extractor pulls the publishing channel/studio name from the
-// page (e.g. YouTube uploader). This is an extra match signal that does
-// NOT replace title cleaning. Returns null when unavailable.
-export type ChannelExtractor = () => string | null;
-
 // A title extractor pulls a cleaner raw title from structured page
 // metadata (e.g. og:title, JSON-LD VideoObject.name) instead of the noisy
 // document.title. The result still passes through title cleaning; this
