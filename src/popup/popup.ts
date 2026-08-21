@@ -14,7 +14,7 @@ const elements = {
   noResultsState: document.getElementById("noResultsState"),
   errorState: document.getElementById("errorState"),
   videoTitle: document.getElementById("videoTitle"),
-  mediaType: document.getElementById("mediaType"),
+  mediaType: document.getElementById("mediaType") as HTMLButtonElement | null,
   searchTitleInput: document.getElementById("searchTitleInput") as HTMLInputElement | null,
   searchBtn: document.getElementById("searchBtn") as HTMLButtonElement | null,
   refreshVideoBtn: document.getElementById("refreshVideoBtn") as HTMLButtonElement | null,
@@ -37,6 +37,35 @@ interface MediaInfo {
   site?: string;
 }
 
+// Current media-type override for the active video (resets on popup reopen / re-detection)
+let currentMediaType: "movie" | "tv" = "movie";
+
+// Sync the toggle button + override state to a given media type
+function setMediaTypeToggle(type: string): void {
+  currentMediaType = type === "tv" ? "tv" : "movie";
+  if (elements.mediaType) {
+    elements.mediaType.textContent = currentMediaType === "tv"
+      ? chrome.i18n.getMessage("mediaTypeTv")
+      : chrome.i18n.getMessage("mediaTypeMovie");
+    elements.mediaType.dataset.type = currentMediaType;
+    syncSearchInputPadding();
+  }
+}
+
+// Reserve left padding on the search input equal to the badge width so text never overlaps it
+function syncSearchInputPadding(): void {
+  if (!elements.mediaType || !elements.searchTitleInput) return;
+  const badgeWidth = elements.mediaType.offsetWidth;
+  // Badge may be measured while its section is still hidden (offsetWidth === 0);
+  // retry next frame so we apply the correct padding once it's laid out.
+  if (badgeWidth === 0) {
+    requestAnimationFrame(syncSearchInputPadding);
+    return;
+  }
+  // badge left offset (8px) + measured badge width + gap (8px)
+  elements.searchTitleInput.style.paddingLeft = `${8 + badgeWidth + 8}px`;
+}
+
 function verifyElements(): boolean {
   const missing: string[] = [];
   for (const [key, value] of Object.entries(elements)) {
@@ -53,8 +82,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   verifyElements();
   addLog(chrome.i18n.getMessage("logPopupOpened"), "info");
   setupEventListeners();
+  setupResizeAnimation();
   await initialize();
 });
+
+// Animate the popup's height when content (visible sections) changes.
+// Chrome sizes the popup to the body; we drive body height from the container's
+// natural height so the CSS `transition: height` produces a smooth grow/shrink.
+function setupResizeAnimation(): void {
+  const container = document.querySelector<HTMLElement>(".container");
+  if (!container || typeof ResizeObserver === "undefined") return;
+
+  const applyHeight = () => {
+    document.body.style.height = `${container.offsetHeight}px`;
+  };
+
+  // Set the initial height without animating (avoids a grow-from-0 flash on open).
+  document.body.style.transition = "none";
+  applyHeight();
+  requestAnimationFrame(() => {
+    document.body.style.transition = "";
+  });
+
+  new ResizeObserver(applyHeight).observe(container);
+}
 
 function setupEventListeners(): void {
   elements.settingsBtn?.addEventListener("click", openSettings);
@@ -63,6 +114,17 @@ function setupEventListeners(): void {
   elements.clearLogsBtn?.addEventListener("click", clearLogs);
 
   elements.searchBtn?.addEventListener("click", handleManualSearch);
+
+  elements.mediaType?.addEventListener("click", async () => {
+    if (elements.mediaType?.disabled) return;
+    setMediaTypeToggle(currentMediaType === "tv" ? "movie" : "tv");
+    if (elements.mediaType) elements.mediaType.disabled = true;
+    try {
+      await handleManualSearch();
+    } finally {
+      if (elements.mediaType) elements.mediaType.disabled = false;
+    }
+  });
 
   elements.searchTitleInput?.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
@@ -226,9 +288,7 @@ async function refreshMediaDetection(): Promise<void> {
       elements.videoTitle.textContent = truncateText(mediaInfo.title, 80);
     }
     if (elements.mediaType) {
-      elements.mediaType.textContent = mediaInfo.mediaType === "tv"
-        ? chrome.i18n.getMessage("mediaTypeTv")
-        : chrome.i18n.getMessage("mediaTypeMovie");
+      setMediaTypeToggle(mediaInfo.mediaType);
     }
     if (elements.searchTitleInput) {
       elements.searchTitleInput.value = mediaInfo.cleanedTitle;
@@ -264,9 +324,7 @@ function showMediaInfo(mediaInfo: { title: string; cleanedTitle: string; mediaTy
     elements.videoTitle.textContent = truncateText(mediaInfo.title, 80);
   }
   if (elements.mediaType) {
-    elements.mediaType.textContent = mediaInfo.mediaType === "tv"
-      ? chrome.i18n.getMessage("mediaTypeTv")
-      : chrome.i18n.getMessage("mediaTypeMovie");
+    setMediaTypeToggle(mediaInfo.mediaType);
   }
   if (elements.searchTitleInput) {
     elements.searchTitleInput.value = mediaInfo.cleanedTitle;
@@ -560,7 +618,7 @@ async function searchOverseerr(query: string): Promise<void> {
     if (response && response.success) {
       const results = (response.data as { results?: unknown[] }).results || [];
       const mediaResults = (results as { mediaType: string }[]).filter(
-        (r) => r.mediaType === "movie" || r.mediaType === "tv",
+        (r) => r.mediaType === currentMediaType,
       );
       await showResults(mediaResults.slice(0, 5));
     } else {

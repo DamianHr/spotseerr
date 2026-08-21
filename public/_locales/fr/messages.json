@@ -84,8 +84,12 @@
     "description": "Media type badge for movies"
   },
   "mediaTypeTv": {
-    "message": "Série TV",
+    "message": "Série",
     "description": "Media type badge for TV shows"
+  },
+  "mediaTypeToggleTooltip": {
+    "message": "Cliquez pour basculer entre Film et Série TV",
+    "description": "Tooltip for the media-type toggle button"
   },
   "statusParsing": {
     "message": "Analyse...",

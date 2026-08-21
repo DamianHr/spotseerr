@@ -86,8 +86,12 @@
     "description": "Label for movie media type"
   },
   "mediaTypeTv": {
-    "message": "TV Show",
+    "message": "Show",
     "description": "Label for TV show media type"
+  },
+  "mediaTypeToggleTooltip": {
+    "message": "Click to switch between Movie and TV Show",
+    "description": "Tooltip for the media-type toggle button"
   },
   "statusParsing": {
     "message": "Parsing...",

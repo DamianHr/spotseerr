@@ -16,6 +16,8 @@ body {
   background: #1a1a1a;
   width: 400px;
   min-height: 300px;
+  overflow: hidden;
+  transition: height 0.2s ease;
 }
 
 .container {
@@ -232,23 +234,57 @@ body {
   overflow: hidden;
 }
 
-.video-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
 .badge {
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
-  background: #6366f1;
+  background: #f59e0b;
   color: white;
   font-size: 11px;
   font-weight: 500;
   border-radius: 4px;
   text-transform: uppercase;
+}
+
+.badge-toggle {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.badge-toggle:hover {
+  background: #d97706;
+}
+
+.badge-toggle:active {
+  transform: scale(0.96);
+}
+
+.badge-toggle:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.badge-toggle[data-type="tv"] {
+  background: #10b981;
+}
+
+.badge-toggle[data-type="tv"]:hover {
+  background: #059669;
+}
+
+/* Media-type toggle embedded far-left inside the search input */
+.input-media-type {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.input-media-type:active {
+  transform: translateY(-50%) scale(0.96);
 }
 
 /* Results Section */
@@ -358,7 +394,7 @@ body {
 
 .search-input {
   width: 100%;
-  padding: 10px 40px 10px 12px;
+  padding: 10px 40px 10px 64px;
   background: #1a1a1a;
   border: 2px solid #444;
   border-radius: 6px;

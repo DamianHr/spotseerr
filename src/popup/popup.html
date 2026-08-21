@@ -52,14 +52,18 @@
       <div id="videoSection" class="video-section hidden">
         <div class="video-info">
           <h2 id="videoTitle" class="video-title"></h2>
-          <div class="video-meta">
-            <span id="mediaType" class="badge"></span>
-          </div>
         </div>
 
         <div class="search-input-group">
           <label for="searchTitleInput" class="search-label" data-i18n="searchTitleLabel"></label>
           <div class="input-with-icon">
+            <button
+              type="button"
+              id="mediaType"
+              class="badge badge-toggle input-media-type"
+              data-type="movie"
+              data-i18n-title="mediaTypeToggleTooltip"
+            ></button>
             <input
               type="text"
               id="searchTitleInput"
