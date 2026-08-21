@@ -78,12 +78,14 @@ export function cleanTitle(title: unknown): string {
   const channelPattern = /[|–—]\s*[^|–—]+$/;
   const resolutionPattern = /\b\d{3,4}p\b|\b4k\b|\bhd\b|\buhd\b/gi;
   const partPattern = /\bpart\s*\d+\b/gi;
+  const seasonPattern = /\s*[:–—-]?\s*\b(?:season\s*\d+|s\d+e\d+|s\d+|episode\s*\d+)\b[\s:–—-]*$/i;
 
   cleaned = cleaned
     .replace(yearPattern, "")
     .replace(channelPattern, "")
     .replace(resolutionPattern, "")
     .replace(partPattern, "")
+    .replace(seasonPattern, "")
     .replace(/[()[\]{}]/g, "")
     .replace(/\s*[^a-z0-9]+$/, "")
     .replace(/\s+/g, " ")

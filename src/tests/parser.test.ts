@@ -146,12 +146,12 @@ Deno.test("cleanTitle", async (t) => {
     assertEquals(cleanTitle("Mortal Kombat 1 - Official Launch Trailer"), "mortal kombat 1");
   });
 
-  await t.step("removes red band trailer", () => {
-    assertEquals(cleanTitle("The Boys Season 4 - Official Red Band Trailer"), "the boys season 4");
+  await t.step("removes red band trailer and trailing season marker", () => {
+    assertEquals(cleanTitle("The Boys Season 4 - Official Red Band Trailer"), "the boys");
   });
 
-  await t.step("handles part patterns", () => {
-    assertEquals(cleanTitle("The Crown Season 6 | Part 1 Official Trailer"), "the crown season 6");
+  await t.step("handles part patterns and trailing season marker", () => {
+    assertEquals(cleanTitle("The Crown Season 6 | Part 1 Official Trailer"), "the crown");
   });
 
   await t.step("removes concept trailer keyword", () => {
@@ -162,6 +162,37 @@ Deno.test("cleanTitle", async (t) => {
     assertEquals(
       cleanTitle("The Umbrella Academy | The Final Season | Official Trailer"),
       "the umbrella academy",
+    );
+  });
+});
+
+Deno.test("cleanTitle season/episode markers", async (t) => {
+  await t.step("strips trailing 'season N' after a colon", () => {
+    assertEquals(cleanTitle("Blue Eye Samurai: Season 2 | Official Teaser | Netflix"), "blue eye samurai");
+  });
+
+  await t.step("strips trailing 'season N'", () => {
+    assertEquals(cleanTitle("Yellowstone Season 5 Part 2 Teaser"), "yellowstone");
+  });
+
+  await t.step("strips trailing SxxExx marker", () => {
+    assertEquals(cleanTitle("Severance S02E01"), "severance");
+  });
+
+  await t.step("keeps a bare trailing number (not a season marker)", () => {
+    assertEquals(cleanTitle("Stranger Things 5 | Title Reveal | Netflix"), "stranger things 5");
+  });
+
+  await t.step("keeps a mid-title number in the name", () => {
+    assertEquals(cleanTitle("Blade Runner 2049 Official Trailer"), "blade runner 2049");
+  });
+
+  await t.step("does not strip a mid-title episode marker with an episode name", () => {
+    // End-anchored: s01e01 is followed by the episode title, so it is left
+    // intact rather than risk eating real title words.
+    assertEquals(
+      cleanTitle("Game of Thrones S01E01 Winter Is Coming"),
+      "game of thrones s01e01 winter is coming",
     );
   });
 });
