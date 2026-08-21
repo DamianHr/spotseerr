@@ -91,14 +91,6 @@
     "message": "Analyse...",
     "description": "Status text during parsing"
   },
-  "statusParsingComplete": {
-    "message": "Analyse terminée",
-    "description": "Status text when parsing is complete"
-  },
-  "statusParsingFailed": {
-    "message": "Échec de l'analyse",
-    "description": "Status text when parsing fails"
-  },
   "statusDetecting": {
     "message": "Détection...",
     "description": "Status text during detection"
@@ -114,10 +106,6 @@
   "statusRequested": {
     "message": "Demandé",
     "description": "Status when media is requested"
-  },
-  "statusNotRequested": {
-    "message": "Non demandé",
-    "description": "Status when media is not requested"
   },
   "requestButton": {
     "message": "Demander",

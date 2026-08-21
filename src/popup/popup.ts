@@ -15,7 +15,6 @@ const elements = {
   errorState: document.getElementById("errorState"),
   videoTitle: document.getElementById("videoTitle"),
   mediaType: document.getElementById("mediaType"),
-  parsingStatus: document.getElementById("parsingStatus"),
   searchTitleInput: document.getElementById("searchTitleInput") as HTMLInputElement | null,
   searchBtn: document.getElementById("searchBtn") as HTMLButtonElement | null,
   refreshVideoBtn: document.getElementById("refreshVideoBtn") as HTMLButtonElement | null,
@@ -178,29 +177,14 @@ async function handleManualSearch(): Promise<void> {
     `;
   }
 
-  if (elements.parsingStatus) {
-    elements.parsingStatus.textContent = chrome.i18n.getMessage("statusParsing");
-    elements.parsingStatus.className = "parsing-status parsing";
-  }
-
   if (elements.resultsSection) elements.resultsSection.classList.add("hidden");
   if (elements.noResultsState) elements.noResultsState.classList.add("hidden");
   if (elements.resultsList) elements.resultsList.innerHTML = "";
 
   try {
     await searchOverseerr(searchTitle);
-
-    if (elements.parsingStatus) {
-      elements.parsingStatus.textContent = chrome.i18n.getMessage("statusParsingComplete");
-      elements.parsingStatus.className = "parsing-status complete";
-    }
   } catch (error) {
     addLog(chrome.i18n.getMessage("logSearchFailed", [(error as Error).message]), "error");
-
-    if (elements.parsingStatus) {
-      elements.parsingStatus.textContent = chrome.i18n.getMessage("statusParsingFailed");
-      elements.parsingStatus.className = "parsing-status error";
-    }
   } finally {
     if (elements.searchBtn) {
       elements.searchBtn.disabled = false;
@@ -228,10 +212,6 @@ async function refreshMediaDetection(): Promise<void> {
     if (elements.resultsSection) elements.resultsSection.classList.add("hidden");
     if (elements.noResultsState) elements.noResultsState.classList.add("hidden");
     if (elements.resultsList) elements.resultsList.innerHTML = "";
-    if (elements.parsingStatus) {
-      elements.parsingStatus.textContent = "";
-      elements.parsingStatus.className = "parsing-status";
-    }
 
     const mediaInfo = await getCurrentMediaInfo();
 
@@ -369,7 +349,6 @@ function createResultElement(result: {
   const poster = clone.querySelector<HTMLImageElement>(".result-poster");
   const title = clone.querySelector<HTMLElement>(".result-title");
   const year = clone.querySelector<HTMLElement>(".result-year");
-  const status = clone.querySelector<HTMLElement>(".result-status");
   const requestBtn = clone.querySelector<HTMLButtonElement>(".btn-request");
 
   if (!item) return null;
@@ -391,8 +370,8 @@ function createResultElement(result: {
     year.textContent = dateStr ? String(new Date(dateStr).getFullYear()) : chrome.i18n.getMessage("yearNotAvailable");
   }
 
-  if (status && requestBtn) {
-    updateResultStatus(result.mediaInfo, status, requestBtn);
+  if (requestBtn) {
+    updateResultStatus(result.mediaInfo, requestBtn);
   }
 
   requestBtn?.addEventListener("click", () => handleRequest(result, requestBtn));
@@ -402,11 +381,9 @@ function createResultElement(result: {
 
 function updateResultStatus(
   mediaInfo: unknown,
-  statusElement: HTMLElement,
   buttonElement: HTMLButtonElement,
 ): void {
   if (!mediaInfo) {
-    statusElement.textContent = chrome.i18n.getMessage("statusNotRequested");
     buttonElement.textContent = chrome.i18n.getMessage("requestButton");
     return;
   }
@@ -415,19 +392,14 @@ function updateResultStatus(
   const hasRequests = info.requests && info.requests.length > 0;
 
   if (info.status >= 4) {
-    statusElement.textContent = chrome.i18n.getMessage("statusAvailable");
-    statusElement.classList.add("available");
     buttonElement.textContent = chrome.i18n.getMessage("statusAvailable");
     buttonElement.classList.add("available");
     buttonElement.disabled = true;
   } else if (hasRequests) {
-    statusElement.textContent = chrome.i18n.getMessage("statusRequested");
-    statusElement.classList.add("requested");
     buttonElement.textContent = chrome.i18n.getMessage("statusRequested");
     buttonElement.classList.add("requested");
     buttonElement.disabled = true;
   } else {
-    statusElement.textContent = chrome.i18n.getMessage("statusNotRequested");
     buttonElement.textContent = chrome.i18n.getMessage("requestButton");
   }
 }
@@ -470,16 +442,6 @@ async function handleRequest(
       button.textContent = chrome.i18n.getMessage("statusRequested");
       button.classList.add("success");
       button.disabled = true;
-
-      const resultItem = button.closest(".result-item");
-      if (resultItem) {
-        const statusElement = resultItem.querySelector(".result-status");
-        if (statusElement) {
-          statusElement.textContent = chrome.i18n.getMessage("statusRequested");
-          statusElement.classList.remove("available");
-          statusElement.classList.add("requested");
-        }
-      }
 
       addLog(chrome.i18n.getMessage("logRequestSuccess", [title]), "success");
 

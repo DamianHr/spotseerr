@@ -134,6 +134,8 @@ body {
 
 .btn-request.available {
   background: #3b82f6;
+  color: #1f2937;
+  font-weight: 600;
 }
 
 /* Config Warning */
@@ -249,28 +251,6 @@ body {
   text-transform: uppercase;
 }
 
-.parsing-status {
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 3px;
-  margin-left: auto;
-}
-
-.parsing-status.parsing {
-  background: #92400e;
-  color: #fbbf24;
-}
-
-.parsing-status.complete {
-  background: #064e3b;
-  color: #34d399;
-}
-
-.parsing-status.error {
-  background: #7f1d1d;
-  color: #f87171;
-}
-
 /* Results Section */
 .results-section {
   margin-top: 16px;
@@ -335,23 +315,6 @@ body {
   gap: 8px;
   font-size: 12px;
   color: #888;
-}
-
-.result-status {
-  padding: 2px 6px;
-  background: #333;
-  border-radius: 3px;
-  font-size: 11px;
-}
-
-.result-status.available {
-  background: #1e3a8a;
-  color: #60a5fa;
-}
-
-.result-status.requested {
-  background: #78350f;
-  color: #fbbf24;
 }
 
 /* Error State */

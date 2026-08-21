@@ -93,14 +93,6 @@
     "message": "Parsing...",
     "description": "Status while parsing"
   },
-  "statusParsingComplete": {
-    "message": "Parsing complete",
-    "description": "Status when parsing is done"
-  },
-  "statusParsingFailed": {
-    "message": "Parsing failed",
-    "description": "Status when parsing fails"
-  },
   "statusDetecting": {
     "message": "Detecting...",
     "description": "Status while detecting video"
@@ -116,10 +108,6 @@
   "statusRequested": {
     "message": "Requested",
     "description": "Status when media is requested"
-  },
-  "statusNotRequested": {
-    "message": "Not Requested",
-    "description": "Status when media is not requested"
   },
   "requestButton": {
     "message": "Request",
