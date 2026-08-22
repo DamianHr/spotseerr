@@ -198,6 +198,14 @@
     "message": "Show debug log window in the popup for troubleshooting",
     "description": "Help text for debug logging"
   },
+  "resultCountLabel": {
+    "message": "Number of results",
+    "description": "Label for result count setting"
+  },
+  "resultCountHelp": {
+    "message": "How many results to show in the search list (1-20)",
+    "description": "Help text for result count setting"
+  },
   "saveSettingsButton": {
     "message": "Save Settings",
     "description": "Save settings button"

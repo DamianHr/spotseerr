@@ -1,6 +1,12 @@
 // Popup script for handling UI interactions with auto-search and debug logging
 
-import { getAllSettings, STORAGE_KEYS } from "../shared/storage";
+import {
+  getAllSettings,
+  RESULT_COUNT_DEFAULT,
+  RESULT_COUNT_MAX,
+  RESULT_COUNT_MIN,
+  STORAGE_KEYS,
+} from "../shared/storage";
 import { getSiteByDomain, isMediaPage } from "../shared/siteConfig";
 import { truncateText } from "../shared/utils";
 import { initI18n } from "../shared/localize";
@@ -39,6 +45,15 @@ interface MediaInfo {
 
 // Current media-type override for the active video (resets on popup reopen / re-detection)
 let currentMediaType: "movie" | "tv" = "movie";
+
+// Max rows shown in the results list; loaded from settings in initialize().
+let resultCount: number = RESULT_COUNT_DEFAULT;
+
+function clampResultCount(value: unknown): number {
+  const n = Math.round(Number(value));
+  if (!Number.isFinite(n)) return RESULT_COUNT_DEFAULT;
+  return Math.min(RESULT_COUNT_MAX, Math.max(RESULT_COUNT_MIN, n));
+}
 
 // Sync the toggle button + override state to a given media type
 function setMediaTypeToggle(type: string): void {
@@ -187,6 +202,7 @@ async function initialize(): Promise<void> {
     }
 
     const debugEnabled = settings[STORAGE_KEYS.DEBUG_ENABLED] === true;
+    resultCount = clampResultCount(settings[STORAGE_KEYS.RESULT_COUNT]);
     if (elements.logSection) {
       if (debugEnabled) {
         elements.logSection.classList.remove("hidden");
@@ -660,7 +676,7 @@ async function searchOverseerr(query: string): Promise<void> {
       const mediaResults = (results as { mediaType: string }[]).filter(
         (r) => r.mediaType === currentMediaType,
       );
-      await showResults(mediaResults.slice(0, 5));
+      await showResults(mediaResults.slice(0, resultCount));
     } else {
       const errorMsg = response?.error || chrome.i18n.getMessage("noResponse");
       addLog(chrome.i18n.getMessage("logSearchError", [errorMsg]), "error");

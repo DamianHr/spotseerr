@@ -1,6 +1,13 @@
 // Options page script for managing settings
 
-import { getAllSettings, saveSettings, STORAGE_KEYS } from "../shared/storage";
+import {
+  getAllSettings,
+  RESULT_COUNT_DEFAULT,
+  RESULT_COUNT_MAX,
+  RESULT_COUNT_MIN,
+  saveSettings,
+  STORAGE_KEYS,
+} from "../shared/storage";
 import { isValidUrl } from "../shared/utils";
 import { testConnection as apiTestConnection } from "../shared/api";
 import { initI18n } from "../shared/localize";
@@ -12,6 +19,7 @@ const elements = {
   toggleApiKey: document.getElementById("toggleApiKey") as HTMLButtonElement,
   notificationsEnabled: document.getElementById("notificationsEnabled") as HTMLInputElement,
   debugEnabled: document.getElementById("debugEnabled") as HTMLInputElement,
+  resultCount: document.getElementById("resultCount") as HTMLInputElement,
   testConnection: document.getElementById("testConnection") as HTMLButtonElement,
   testBtnText: document.getElementById("testBtnText") as HTMLSpanElement,
   testBtnLoader: document.getElementById("testBtnLoader") as HTMLElement,
@@ -52,9 +60,17 @@ async function loadSettings(): Promise<void> {
     elements.apiKey.value = String(settings[STORAGE_KEYS.API_KEY] || "");
     elements.notificationsEnabled.checked = settings[STORAGE_KEYS.NOTIFICATIONS_ENABLED] !== false;
     elements.debugEnabled.checked = settings[STORAGE_KEYS.DEBUG_ENABLED] === true;
+    elements.resultCount.value = String(clampResultCount(settings[STORAGE_KEYS.RESULT_COUNT]));
   } catch {
     showError(chrome.i18n.getMessage("errorLoadSettings"));
   }
+}
+
+// Coerce any stored/entered value into a valid result-count integer.
+function clampResultCount(value: unknown): number {
+  const n = Math.round(Number(value));
+  if (!Number.isFinite(n)) return RESULT_COUNT_DEFAULT;
+  return Math.min(RESULT_COUNT_MAX, Math.max(RESULT_COUNT_MIN, n));
 }
 
 async function handleSubmit(e: Event): Promise<void> {
@@ -84,6 +100,7 @@ async function handleSubmit(e: Event): Promise<void> {
       [STORAGE_KEYS.API_KEY]: apiKey,
       [STORAGE_KEYS.NOTIFICATIONS_ENABLED]: elements.notificationsEnabled.checked,
       [STORAGE_KEYS.DEBUG_ENABLED]: elements.debugEnabled.checked,
+      [STORAGE_KEYS.RESULT_COUNT]: clampResultCount(elements.resultCount.value),
     };
 
     await saveSettings(settings);
@@ -115,6 +132,7 @@ async function testConnection(): Promise<void> {
       [STORAGE_KEYS.API_KEY]: apiKey,
       [STORAGE_KEYS.NOTIFICATIONS_ENABLED]: elements.notificationsEnabled.checked,
       [STORAGE_KEYS.DEBUG_ENABLED]: elements.debugEnabled.checked,
+      [STORAGE_KEYS.RESULT_COUNT]: clampResultCount(elements.resultCount.value),
     });
 
     const response = await apiTestConnection();
@@ -156,6 +174,7 @@ function resetSettings(): void {
     elements.apiKey.value = "";
     elements.notificationsEnabled.checked = true;
     elements.debugEnabled.checked = false;
+    elements.resultCount.value = String(RESULT_COUNT_DEFAULT);
     elements.connectionStatus.textContent = "";
     elements.connectionStatus.className = "connection-status";
 

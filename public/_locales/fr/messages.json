@@ -195,6 +195,14 @@
     "message": "Afficher la fenêtre du journal de débogage dans le popup pour le dépannage",
     "description": "Debug logging help text"
   },
+  "resultCountLabel": {
+    "message": "Nombre de résultats",
+    "description": "Label for result count setting"
+  },
+  "resultCountHelp": {
+    "message": "Nombre de résultats à afficher dans la liste de recherche (1-20)",
+    "description": "Help text for result count setting"
+  },
   "saveSettingsButton": {
     "message": "Enregistrer les paramètres",
     "description": "Save settings button text"
