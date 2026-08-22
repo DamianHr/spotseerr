@@ -420,6 +420,7 @@ function createResultElement(result: {
   const clone = elements.resultTemplate.content.cloneNode(true) as DocumentFragment;
   const item = clone.querySelector<HTMLElement>(".result-item");
   const poster = clone.querySelector<HTMLImageElement>(".result-poster");
+  const posterPreview = clone.querySelector<HTMLImageElement>(".result-poster-preview");
   const title = clone.querySelector<HTMLElement>(".result-title");
   const year = clone.querySelector<HTMLElement>(".result-year");
   const requestBtn = clone.querySelector<HTMLButtonElement>(".btn-request");
@@ -435,6 +436,20 @@ function createResultElement(result: {
     poster.onerror = () => {
       poster.src = "../icons/camera2.png";
     };
+
+    // Hover zoom: lazy-load a higher-res poster into the floating preview on
+    // first hover. Only for real posters (skip fallback icons).
+    if (posterPreview && result.posterPath) {
+      const previewUrl = `https://image.tmdb.org/t/p/w342${result.posterPath}`;
+      poster.parentElement?.addEventListener("mouseenter", () => {
+        // Note: img.src property resolves to an absolute URL even when the
+        // attribute is empty, so check the attribute, not the property.
+        if (!posterPreview.getAttribute("src")) {
+          posterPreview.src = previewUrl;
+          addLog(`Hover-zoom preview loaded: ${result.title || result.name}`, "info");
+        }
+      });
+    }
   }
 
   if (title) title.textContent = result.title || result.name || "";

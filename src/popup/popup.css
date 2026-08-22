@@ -322,12 +322,50 @@ body {
   background: #2a2a2a;
 }
 
+.result-poster-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .result-poster {
+  display: block;
   width: 48px;
   height: 72px;
   object-fit: cover;
   border-radius: 4px;
   background: #333;
+}
+
+/* Hover zoom preview: floating high-res poster, no layout shift */
+.result-poster-preview {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scale(0.9);
+  transform-origin: left center;
+  width: 140px;
+  height: 210px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #333;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 50;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.result-poster-wrap:hover .result-poster-preview {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) scale(1);
+}
+
+/* No high-res source (fallback icon results): don't show an empty preview */
+.result-poster-preview:not([src]),
+.result-poster-preview[src=""] {
+  display: none;
 }
 
 .result-info {
