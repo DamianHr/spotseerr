@@ -431,10 +431,13 @@ function createResultElement(result: {
   item.dataset.type = result.mediaType;
 
   if (poster) {
-    const posterUrl = result.posterPath ? `https://image.tmdb.org/t/p/w92${result.posterPath}` : "../icons/broken.png";
+    const fallbackPoster = "../../icons/broken.png";
+    const posterUrl = result.posterPath ? `https://image.tmdb.org/t/p/w92${result.posterPath}` : fallbackPoster;
     poster.src = posterUrl;
     poster.onerror = () => {
-      poster.src = "../icons/camera2.png";
+      // Avoid an infinite loop if the fallback itself fails to load.
+      poster.onerror = null;
+      poster.src = fallbackPoster;
     };
 
     // Hover zoom: lazy-load a higher-res poster into the floating preview on

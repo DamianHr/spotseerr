@@ -362,6 +362,19 @@ body {
   transform: translateY(-50%) scale(1);
 }
 
+/* Last row: anchor the preview to the poster's bottom so it grows upward
+   instead of overflowing below (which would enlarge the scroll container). */
+.result-item:last-child .result-poster-preview {
+  top: auto;
+  bottom: 0;
+  transform: translateY(0) scale(0.9);
+  transform-origin: left bottom;
+}
+
+.result-item:last-child .result-poster-wrap:hover .result-poster-preview {
+  transform: translateY(0) scale(1);
+}
+
 /* No high-res source (fallback icon results): don't show an empty preview */
 .result-poster-preview:not([src]),
 .result-poster-preview[src=""] {
